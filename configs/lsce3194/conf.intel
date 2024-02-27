@@ -1,0 +1,6 @@
+FC="/opt/intel/oneapi/compiler/2021.4.0/linux/bin/intel64/ifort"
+NETCDFINC="/opt/libs-for-intelOneApi-2021-10-08/netCDF/include"
+NETCDFLIB="/opt/libs-for-intelOneApi-2021-10-08/netCDF/lib"
+NETCDFFINC="/opt/libs-for-intelOneApi-2021-10-08/netCDF-Fortran/include"
+NETCDFFLIB="/opt/libs-for-intelOneApi-2021-10-08/netCDF-Fortran/lib"
+

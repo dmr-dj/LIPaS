@@ -1,0 +1,5 @@
+FC="/opt/nvidia/hpc_sdk/Linux_x86_64/23.11/compilers/bin/pgfortran"
+NETCDFINC="/opt/libs-for-nvhpc-2024-01-22/netCDF-C++/include"
+NETCDFLIB="/opt/libs-for-nvhpc-2024-01-22/netCDF-C++/lib"
+NETCDFFINC="/opt/libs-for-nvhpc-2024-01-22/netCDF-Fortran/include"
+NETCDFFLIB="/opt/libs-for-nvhpc-2024-01-22/netCDF-Fortran/lib"
