@@ -17,6 +17,9 @@
 set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
+prog_name="MCI-Fortran"
+script_version="0.0.1"
+
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
 usage() {
@@ -57,6 +60,13 @@ die() {
   exit "$code"
 }
 
+display_version() {
+
+  msg "${prog_name} version ${script_version}"
+  exit
+  
+}
+
 parse_params() {
 	
   args=("$@")
@@ -68,6 +78,7 @@ parse_params() {
     -h | --help) usage ;;
     -v | --verbose) set -x ;;
     --no-color) NO_COLOR=1 ;;
+    --version) display_version ;;
     -?*) die "Unknown option: $1" ;;
     *) break ;;
     esac
@@ -112,8 +123,9 @@ function show_progress {
     fi
 }
 
-parse_params "$@"
 setup_colors
+parse_params "$@"
+
 
 # script logic here
 
