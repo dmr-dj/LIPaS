@@ -1,2 +1,2 @@
-# MCI-Fortran
-the Multi Compiler Installer - with a Fortran angle
+# LIPaS
+the LUDUS Installer & Package Solver
