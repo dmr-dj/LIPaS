@@ -17,10 +17,12 @@
 set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
-prog_name="MCI-Fortran"
-script_version="0.0.1"
+prog_name="LIPaS"
+script_version="0.0.2"
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
+
+verbose=1
 
 usage() {
   cat <<EOF
@@ -39,13 +41,14 @@ EOF
 cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
   # script cleanup here
+  #~ msg "Died through cleanup ..."
 }
 
 setup_colors() {
   if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
-    NOFORMAT='\033[0m' RED='\033[0;31m' GREEN='\033[0;32m' ORANGE='\033[0;33m' BLUE='\033[0;34m' PURPLE='\033[0;35m' CYAN='\033[0;36m' YELLOW='\033[1;33m'
+    NOFORMAT='\033[0m' RED='\033[0;31m' GREEN='\033[0;32m' ORANGE='\033[0;33m' BLUE='\033[0;34m' PURPLE='\033[0;35m' CYAN='\033[0;36m' YELLOW='\033[1;33m' GRAY='\033[38;5;8m'
   else
-    NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW=''
+    NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW='' GRAY=''
   fi
 }
 
@@ -53,10 +56,19 @@ msg() {
   echo >&2 -e "${1-}"
 }
 
+vrb() {
+  if [ ${verbose} -eq 1 ] 
+  then 
+     msg "${GRAY} ${1} ${NOFORMAT}"
+  #~ else
+     #pass
+  fi	
+}
+
 die() {
   local msg=$1
   local code=${2-1} # default exit status 1
-  msg "$msg"
+  msg "${RED} $msg ${NOFORMAT}"
   exit "$code"
 }
 
@@ -126,6 +138,93 @@ function show_progress {
 setup_colors
 parse_params "$@"
 
+configsDIR="configs"
+
+
+msg "====================================="
+msg "+                                   +"
+msg "+             LIPaS                 +"
+msg "+           version ${script_version}           +"
+msg "+                                   +"
+msg "====================================="
+
+msg ""
+msg ""
+
+ComputerName=${HOSTNAME}
+confFile="conf."
+confNbLinesFile="6"
+
+vrb "=======   LOCATING CONFIGS   ========"
+
+if [ -d ${script_dir}/${configsDIR}/${ComputerName} ]
+then
+
+    vrb "+    Detected a configuration DIR   +"
+
+    CONF_DIR="${script_dir}/${configsDIR}/${ComputerName}"
+    LIST_CONF_FILES=()
+    for fich in $(ls ${CONF_DIR}/${confFile}*)
+    do
+       nb_lines_conf=$(wc -l ${fich} | cut --delimiter=" " -f1)
+       if [ "${nb_lines_conf}" -ge "${confNbLinesFile}" ]
+       then
+          LIST_CONF_FILES+=("${fich}")
+       fi    
+    done
+    
+    nb_valid_conf=${#LIST_CONF_FILES[@]}
+    vrb "+  Found ${nb_valid_conf} valid files in conf DIR  +"
+
+else
+
+    vrb "+  Configuration DIR not detected   +"
+    vrb "+  No possibility to go further     +"
+    vrb "+    in current version of ${prog_name}    +" 
+
+    die "  Execution of ${prog_name} failed   "
+    #~ for fich in `ls ${nom_fich_config}*`
+    #~ do
+	#~ nom_gen=${fich##${nom_fich_config}}
+	#~ nom_gen_mach=`echo ${nommachine} | sed "s%[0-9]*%%g"`
+	#~ resul_enlev=${nom_gen##${nom_gen_mach}}
+	#~ otreoption=`echo ${nommachine} | sed "s%[0-9]*%%g" | sed "s%${nom_gen}%TOTO%g" | grep TOTO`
+	#~ if [ "${nom_gen##${nom_gen_mach}}" = "" ]
+	#~ then
+	    #~ echo "Retreiving  environement variables for ${nom_gen} "
+	    #~ fichconfig="${fich}"
+	#~ elif [ ! "${otreoption}" = "" ]
+	#~ then
+	    #~ echo "Retreiving  environement variables for ${nom_gen} "
+	    #~ fichconfig="${fich}"
+        #~ elif [ ! "${nommachine##${nom_gen}}" = ${nommachine} ]
+        #~ then
+	    #~ echo "Retreiving  environement variables for ${nom_gen} "
+	    #~ fichconfig="${fich}"
+        #~ fi
+    #~ done
+
+fi
+
+vrb "=======  DEFINING COMPILERS  ========"
+
+
+env_to_build=()
+
+for file in "${LIST_CONF_FILES[@]}"
+do
+   env_type=$(basename ${file} | cut -d. -f 2) # second file of config file is type of env, e.g. conf.gnu
+   
+   if [[ ${env_to_build[@]} =~ ${env_type} ]]
+   then
+      vrb "+   Env. ${env_type} has a double conf file +"
+      vrb "+     ... using first one found ... +"
+   else
+      vrb "+   Conf file for env. ${env_type} found    +"
+      env_to_build+=("${env_type}")
+   fi
+done
+
 
 # script logic here
 
@@ -140,7 +239,7 @@ msg "${RED} ${tempDIR} to be created ${NOFORMAT}"
 
 
 msg "${GREEN}Finalized work${NOFORMAT}"
-msg "${GREEN}== Final files are in: ${NOFORMAT}"
+msg "${GREEN}== Final files are in: ${tempDIR} ${NOFORMAT}"
 
 msg "${NOFORMAT}"
 
