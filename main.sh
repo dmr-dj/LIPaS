@@ -155,12 +155,12 @@ ComputerName=${HOSTNAME}
 confFile="conf."
 confNbLinesFile="6"
 
-vrb "=======   LOCATING CONFIGS   ========"
+vrb "=======   LOCATING CONFIGS   ======="
 
 if [ -d ${script_dir}/${configsDIR}/${ComputerName} ]
 then
 
-    vrb "+    Detected a configuration DIR   +"
+    vrb "+   Detected a configuration DIR   +"
 
     CONF_DIR="${script_dir}/${configsDIR}/${ComputerName}"
     LIST_CONF_FILES=()
@@ -174,13 +174,13 @@ then
     done
     
     nb_valid_conf=${#LIST_CONF_FILES[@]}
-    vrb "+  Found ${nb_valid_conf} valid files in conf DIR  +"
+    vrb "+ Found ${nb_valid_conf} valid files in conf DIR  +"
 
 else
 
-    vrb "+  Configuration DIR not detected   +"
-    vrb "+  No possibility to go further     +"
-    vrb "+    in current version of ${prog_name}    +" 
+    vrb "+  Configuration DIR not detected  +"
+    vrb "+  No possibility to go further    +"
+    vrb "+    in current version of ${prog_name}   +" 
 
     die "  Execution of ${prog_name} failed   "
     #~ for fich in `ls ${nom_fich_config}*`
@@ -206,10 +206,11 @@ else
 
 fi
 
-vrb "=======  DEFINING COMPILERS  ========"
+vrb "=======  DEFINING COMPILERS  ======="
 
 
 env_to_build=()
+conf_to_build=()
 
 for file in "${LIST_CONF_FILES[@]}"
 do
@@ -217,14 +218,34 @@ do
    
    if [[ ${env_to_build[@]} =~ ${env_type} ]]
    then
-      vrb "+   Env. ${env_type} has a double conf file +"
-      vrb "+     ... using first one found ... +"
+      vrb "+  Env. ${env_type} has a double conf file +"
+      vrb "+    ... using first one found ... +"
    else
-      vrb "+   Conf file for env. ${env_type} found    +"
+      vrb "+  Conf file for env. ${env_type} found    +"
       env_to_build+=("${env_type}")
+      conf_to_build+=("${file}")
    fi
 done
 
+# Retreive the compiler /version ...
+
+msg "===  Analysing Environnements  ======"
+
+
+for (( indx_conf=0; indx_conf<=${#conf_to_build[@]}-1; indx_conf++ ))
+do
+   conf=${conf_to_build[${indx_conf}]}
+      
+   FC_line=$(grep "FC" ${conf})
+   declare -x ${FC_line}
+   FC_version=$(${FC} --version | grep -i ${env_to_build[${indx_conf}]} | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
+   vrb "+      gnu env FC_gnu = ${FC_version}     +"
+   
+   msg "+  Testing    Fortran Compiler (FC) +"
+   # Here testing the fortran compiler(s) found with test data To Be Defined.
+   
+   msg "+  Test  NC w/Fortran Compiler (FC) +"
+done
 
 # script logic here
 
