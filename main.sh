@@ -241,10 +241,33 @@ do
    FC_version=$(${FC} --version | grep -i ${env_to_build[${indx_conf}]} | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
    vrb "+      gnu env FC_gnu = ${FC_version}     +"
    
+   
+   NC_FINC_line=$(grep "NC_F_INC" ${conf})
+      declare -x ${NC_FINC_line}
+   if [ -f ${NC_F_INC}/netcdf.mod ]
+   then
+     vrb "+      include netCDF found        +"
+   else
+     die "Incorrect netCDF Fortran env. (include)"
+   fi
+
+   NC_FLIB_line=$(grep "NC_F_LIB" ${conf})
+      declare -x ${NC_FLIB_line}
+   if [ -f ${NC_F_LIB}/libnetcdff.a ]
+   then
+     vrb "+      library netCDF found        +"
+   else
+     die "Incorrect netCDF Fortran env. (library)"
+   fi
+
+   
    msg "+  Testing    Fortran Compiler (FC) +"
    # Here testing the fortran compiler(s) found with test data To Be Defined.
    
    msg "+  Test  NC w/Fortran Compiler (FC) +"
+   # Here testing the netCDF libraries found with test data To Be Defined.
+   
+   
 done
 
 # script logic here
