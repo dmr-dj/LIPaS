@@ -231,6 +231,9 @@ done
 
 msg "===  Analysing Environnements  ======"
 
+tempDIR="tmp-$(hexdump -n 8 -v -e '/1 "%02X"' /dev/urandom)"
+mkdir ${tempDIR}
+
 
 for (( indx_conf=0; indx_conf<=${#conf_to_build[@]}-1; indx_conf++ ))
 do
@@ -238,12 +241,14 @@ do
       
    FC_line=$(grep "FC" ${conf})
    declare -x ${FC_line}
+   
    FC_version=$(${FC} --version | grep -i ${env_to_build[${indx_conf}]} | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
-   vrb "+      gnu env FC_gnu = ${FC_version}     +"
    
-   
+   vrb "+      ${env_to_build[${indx_conf}]} env FC = ${FC_version}         +"
+      
    NC_FINC_line=$(grep "NC_F_INC" ${conf})
-      declare -x ${NC_FINC_line}
+   declare -x ${NC_FINC_line}
+   
    if [ -f ${NC_F_INC}/netcdf.mod ]
    then
      vrb "+      include netCDF found        +"
@@ -252,7 +257,8 @@ do
    fi
 
    NC_FLIB_line=$(grep "NC_F_LIB" ${conf})
-      declare -x ${NC_FLIB_line}
+   declare -x ${NC_FLIB_line}
+   
    if [ -f ${NC_F_LIB}/libnetcdff.a ]
    then
      vrb "+      library netCDF found        +"
@@ -260,9 +266,41 @@ do
      die "Incorrect netCDF Fortran env. (library)"
    fi
 
-   
    msg "+  Testing    Fortran Compiler (FC) +"
    # Here testing the fortran compiler(s) found with test data To Be Defined.
+   cp src-tst/*.f* ${tempDIR}/.
+   
+   cd ${tempDIR}
+   
+   vrb "+     Testing plain FORTRAN ...    +"   
+   
+   ${FC} -o  fpi_serial.x fpi_serial.f 2>&1 > /dev/null
+   
+   if [ -f fpi_serial.x ]
+   then
+     ./fpi_serial.x
+   fi
+
+   vrb "+     Testing mpi FORTRAN ...      +"   
+ 
+   #~ To be Done correctly with MPI Fortran detection ...  
+   #~ ${FC} -o  fpi_serial.x fpi_serial.f 2>&1 > /dev/null
+   
+   #~ if [ -f fpi_serial.x ]
+   #~ then
+     #~ ./fpi_serial.x
+   #~ fi
+
+
+   vrb "+     Testing omp FORTRAN ...      +"   
+ 
+   ${FC} -o  test_omp.x test_omp.f90 -fopenmp 2>&1 > /dev/null
+   
+   if [ -f test_omp.x ]
+   then
+     ./test_omp.x
+   fi
+
    
    msg "+  Test  NC w/Fortran Compiler (FC) +"
    # Here testing the netCDF libraries found with test data To Be Defined.
@@ -270,21 +308,7 @@ do
    
 done
 
-# script logic here
+rm -fR ${tempDIR}
 
-msg "${ORANGE}Read parameters:${NOFORMAT}"
-msg "- arguments: ${args[*]-}"
-
-
-
-tempDIR="tmp-$(hexdump -n 6 -v -e '/1 "%02X"' /dev/urandom)"
-
-msg "${RED} ${tempDIR} to be created ${NOFORMAT}"
-
-
-msg "${GREEN}Finalized work${NOFORMAT}"
-msg "${GREEN}== Final files are in: ${tempDIR} ${NOFORMAT}"
-
-msg "${NOFORMAT}"
 
 # The End of All Things (op. cit.)
