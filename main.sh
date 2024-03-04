@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.0.2"
+script_version="0.1.0"
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -59,7 +59,10 @@ msg() {
 vrb() {
   if [ ${verbose} -eq 1 ] 
   then 
-     msg "${GRAY} ${1} ${NOFORMAT}"
+     filler=$( seq -s ' ' 1 100 | tr -dc ' ' )
+     string=" ${1}"
+     msg_lok=$string${filler:${#string}}
+     msg "${GRAY} + ${msg_lok:0:35} + ${NOFORMAT}"
   #~ else
      #pass
   fi	
@@ -141,14 +144,13 @@ parse_params "$@"
 configsDIR="configs"
 
 
-msg "====================================="
-msg "+                                   +"
-msg "+             LIPaS                 +"
-msg "+           version ${script_version}           +"
-msg "+                                   +"
-msg "====================================="
+msg " ====================================="
+msg " +                                   +"
+msg " +             LIPaS                 +"
+msg " +           version ${script_version}           +"
+msg " +                                   +"
+msg " ====================================="
 
-msg ""
 msg ""
 
 ComputerName=${HOSTNAME}
@@ -160,7 +162,7 @@ vrb "=======   LOCATING CONFIGS   ======="
 if [ -d ${script_dir}/${configsDIR}/${ComputerName} ]
 then
 
-    vrb "+   Detected a configuration DIR   +"
+    vrb "Detected a configuration DIR"
 
     CONF_DIR="${script_dir}/${configsDIR}/${ComputerName}"
     LIST_CONF_FILES=()
@@ -174,13 +176,13 @@ then
     done
     
     nb_valid_conf=${#LIST_CONF_FILES[@]}
-    vrb "+ Found ${nb_valid_conf} valid files in conf DIR  +"
+    vrb "Found ${nb_valid_conf} valid files in conf DIR"
 
 else
 
-    vrb "+  Configuration DIR not detected  +"
-    vrb "+  No possibility to go further    +"
-    vrb "+    in current version of ${prog_name}   +" 
+    vrb "Configuration DIR not detected"
+    vrb "No possibility to go further"
+    vrb "  in current version of ${prog_name}" 
 
     die "  Execution of ${prog_name} failed   "
     #~ for fich in `ls ${nom_fich_config}*`
@@ -218,10 +220,10 @@ do
    
    if [[ ${env_to_build[@]} =~ ${env_type} ]]
    then
-      vrb "+  Env. ${env_type} has a double conf file +"
-      vrb "+    ... using first one found ... +"
+      vrb "Env. ${env_type} has a double conf file"
+      vrb "   ... using first one found ..."
    else
-      vrb "+  Conf file for env. ${env_type} found    +"
+      vrb "Conf file for env. ${env_type} found"
       env_to_build+=("${env_type}")
       conf_to_build+=("${file}")
    fi
@@ -229,7 +231,7 @@ done
 
 # Retreive the compiler /version ...
 
-msg "===  Analysing Environnements  ======"
+msg " ===  Analysing Environnements  ======"
 
 tempDIR="tmp-$(hexdump -n 8 -v -e '/1 "%02X"' /dev/urandom)"
 mkdir ${tempDIR}
@@ -244,14 +246,14 @@ do
    
    FC_version=$(${FC} --version | grep -i ${env_to_build[${indx_conf}]} | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
    
-   vrb "+      ${env_to_build[${indx_conf}]} env FC = ${FC_version}         +"
+   vrb "${env_to_build[${indx_conf}]} env FC = ${FC_version}"
       
    NC_FINC_line=$(grep "NC_F_INC" ${conf})
    declare -x ${NC_FINC_line}
    
    if [ -f ${NC_F_INC}/netcdf.mod ]
    then
-     vrb "+      include netCDF found        +"
+     vrb "include netCDF F found"
    else
      die "Incorrect netCDF Fortran env. (include)"
    fi
@@ -261,27 +263,55 @@ do
    
    if [ -f ${NC_F_LIB}/libnetcdff.a ]
    then
-     vrb "+      library netCDF found        +"
+     vrb "library netCDF F found"
    else
      die "Incorrect netCDF Fortran env. (library)"
    fi
 
-   msg "+  Testing    Fortran Compiler (FC) +"
+   NC_CINC_line=$(grep "NC_C_INC" ${conf})
+   declare -x ${NC_CINC_line}
+   
+   if [ -f ${NC_C_INC}/netcdf.h ]
+   then
+     vrb "include netCDF C found"
+   else
+     die "Incorrect netCDF Fortran env. (include)"
+   fi
+
+   NC_CLIB_line=$(grep "NC_C_LIB" ${conf})
+   declare -x ${NC_CLIB_line}
+   
+   if [ -f ${NC_C_LIB}/libnetcdf.so ]
+   then
+     vrb "library netCDF C found"
+   else
+     die "Incorrect netCDF Fortran env. (library)"
+   fi
+
+   LIBNETCDFF="-Wl,-rpath=${NC_F_LIB} -L${NC_F_LIB} -lnetcdff"
+   INCNETCDFF="-I${NC_F_INC}"
+   LIBNETCDFC="-Wl,-rpath=${NC_C_LIB} -L${NC_C_LIB} -lnetcdf"
+   INCNETCDFC="-I${NC_C_INC}"
+   
+   LIBNETCDF="${LIBNETCDFC} ${LIBNETCDFF}"
+   INCNETCDF="${INCNETCDFC} ${INCNETCDFF}"
+   
+   msg " +  Testing   Fortran Compiler (FC)  +"
    # Here testing the fortran compiler(s) found with test data To Be Defined.
    cp src-tst/*.f* ${tempDIR}/.
    
    cd ${tempDIR}
    
-   vrb "+     Testing plain FORTRAN ...    +"   
+   vrb "Testing plain FORTRAN ..."   
    
    ${FC} -o  fpi_serial.x fpi_serial.f 2>&1 > /dev/null
    
    if [ -f fpi_serial.x ]
    then
-     ./fpi_serial.x
+     ./fpi_serial.x 2>&1 > /dev/null
    fi
 
-   vrb "+     Testing mpi FORTRAN ...      +"   
+   vrb "Testing mpi FORTRAN ..."   
  
    #~ To be Done correctly with MPI Fortran detection ...  
    #~ ${FC} -o  fpi_serial.x fpi_serial.f 2>&1 > /dev/null
@@ -292,22 +322,54 @@ do
    #~ fi
 
 
-   vrb "+     Testing omp FORTRAN ...      +"   
+   vrb "Testing omp FORTRAN ..."   
  
    ${FC} -o  test_omp.x test_omp.f90 -fopenmp 2>&1 > /dev/null
    
    if [ -f test_omp.x ]
    then
-     ./test_omp.x
+     ./test_omp.x 2>&1 > /dev/null
    fi
-
    
-   msg "+  Test  NC w/Fortran Compiler (FC) +"
+   msg " +  Test  NC w/Fortran Compiler (FC) +"
    # Here testing the netCDF libraries found with test data To Be Defined.
    
+   NC_fortran_filelist=($(ls ../src-tst/netCDF-F/*_wr.f*))   
+
+   for fortran_F in "${NC_fortran_filelist[@]}"
+   do
+     cp ${fortran_F} .     
+     basename_F=$(basename ${fortran_F} .f90)
+     ${FC} -o ${basename_F}.x ${INCNETCDF} ${fortran_F} ${LIBNETCDF} 2>&1 > /dev/null
+   
+     if [ -f ${basename_F}.x ]
+     then
+        ./${basename_F}.x 2>&1 > /dev/null
+         vrb "Success for ${basename_F}"
+     fi
+     
+   done
+
+   NC_fortran_filelist=($(ls ../src-tst/netCDF-F/*_rd.f*))   
+
+   for fortran_F in "${NC_fortran_filelist[@]}"
+   do
+     cp ${fortran_F} .     
+     basename_F=$(basename ${fortran_F} .f90)
+     ${FC} -o ${basename_F}.x ${INCNETCDF} ${fortran_F} ${LIBNETCDF} 2>&1 > /dev/null
+   
+     if [ -f ${basename_F}.x ]
+     then
+        ./${basename_F}.x 2>&1 > /dev/null
+         vrb "Success for ${basename_F}"
+     fi
+     
+   done
+
    
 done
 
+cd ${script_dir}
 rm -fR ${tempDIR}
 
 
