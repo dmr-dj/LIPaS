@@ -153,9 +153,7 @@ msg "  ===================================== "
 
 msg ""
 
-ComputerName=${HOSTNAME}
-confFile="conf."
-confNbLinesFile="6"
+source ./LIPaS.params
 
 vrb "=======   LOCATING CONFIGS   ======="
 
@@ -233,12 +231,6 @@ done
 
 msg "  ===  Analysing Environnements  ====== "
 
-tempDIR="tmp-$(hexdump -n 8 -v -e '/1 "%02X"' /dev/urandom)"
-mkdir ${tempDIR}
-
-env_DIR="envs"
-mkdir -p ${env_DIR}
-
 for (( indx_conf=0; indx_conf<=${#conf_to_build[@]}-1; indx_conf++ ))
 do
    conf=${conf_to_build[${indx_conf}]}
@@ -277,7 +269,7 @@ do
    then
      vrb "include netCDF C found"
    else
-     die "Incorrect netCDF Fortran env. (include)"
+     die "Incorrect netCDF C env. (include)"
    fi
 
    NC_CLIB_line=$(grep "NC_C_LIB" ${conf})
@@ -287,7 +279,7 @@ do
    then
      vrb "library netCDF C found"
    else
-     die "Incorrect netCDF Fortran env. (library)"
+     die "Incorrect netCDF C env. (library)"
    fi
 
    LIBNETCDFF="-Wl,-rpath=${NC_F_LIB} -L${NC_F_LIB} -lnetcdff"
@@ -300,7 +292,7 @@ do
    
    msg " +  Testing   Fortran Compiler (FC)    +"
    # Here testing the fortran compiler(s) found with test data To Be Defined.
-   cp src-tst/*.f* ${tempDIR}/.
+   cp ${SRC_TST_DIR}/*.f* ${tempDIR}/.
    
    cd ${tempDIR}
    
@@ -336,7 +328,7 @@ do
    msg " +  Test  NC w/Fortran Compiler (FC)   +"
    # Here testing the netCDF libraries found with test data To Be Defined.
    
-   NC_fortran_filelist=($(ls ../src-tst/netCDF-F/*_wr.f*))   
+   NC_fortran_filelist=($(ls ../${SRC_TST_DIR}/netCDF-F/*_wr.f*))   
 
    for fortran_F in "${NC_fortran_filelist[@]}"
    do
@@ -352,7 +344,7 @@ do
      
    done
 
-   NC_fortran_filelist=($(ls ../src-tst/netCDF-F/*_rd.f*))   
+   NC_fortran_filelist=($(ls ../${SRC_TST_DIR}/netCDF-F/*_rd.f*))   
 
    for fortran_F in "${NC_fortran_filelist[@]}"
    do

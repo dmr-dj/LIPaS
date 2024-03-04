@@ -1,0 +1,24 @@
+# == Standard location for the installation of LIPaS packages ==
+LIPaS_ROOT="${HOME}/.lipas"
+
+# == Methodology to find the pre-defined config files ==
+
+# (1) Work on computer name
+ComputerName=${HOSTNAME}
+# (2) Files are "conf.${HOSTNAME}"
+confFile="conf."
+# (3) A proper configuration needs at least 6 lines
+confNbLinesFile="6"
+
+# == Generating a temporary file for work, should be random enough within LIPaS self
+tempDIR="tmp-$(hexdump -n 8 -v -e '/1 "%02X"' /dev/urandom)"
+mkdir ${tempDIR}
+
+# == Standard location for the environnements files generated (one by compiler env)
+env_DIR="envs"
+mkdir -p ${env_DIR}
+
+# == Standard location for the program files used to test the environnement pre-defined ==
+
+# Assumes that there is a subdirectory netCDF-F / netCDF - Fortran testing
+SRC_TST_DIR="src-tst"
