@@ -1,5 +1,9 @@
+
 # == Standard location for the installation of LIPaS packages ==
 LIPaS_ROOT="${HOME}/.lipas"
+
+# == Standard location to read config files ==
+configsDIR="configs"
 
 # == Methodology to find the pre-defined config files ==
 

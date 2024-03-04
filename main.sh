@@ -138,11 +138,84 @@ function show_progress {
     fi
 }
 
+function test_FC_compiler(){
+
+   msg " +  Testing   Fortran Compiler (FC)    +"
+   # Here testing the fortran compiler(s) found with test data To Be Defined.
+   cp ${SRC_TST_DIR}/*.f* ${tempDIR}/.
+   
+   cd ${tempDIR}
+   
+   vrb "Testing plain FORTRAN ..."   
+   
+   ${FC} -o  fpi_serial.x fpi_serial.f 2>&1 > /dev/null
+   
+   if [ -f fpi_serial.x ]
+   then
+     ./fpi_serial.x 2>&1 > /dev/null
+   fi
+
+   vrb "Testing mpi FORTRAN ..."   
+ 
+   #~ To be Done correctly with MPI Fortran detection ...  
+   #~ ${FC} -o  fpi_serial.x fpi_serial.f 2>&1 > /dev/null
+   
+   #~ if [ -f fpi_serial.x ]
+   #~ then
+     #~ ./fpi_serial.x
+   #~ fi
+
+
+   vrb "Testing omp FORTRAN ..."   
+ 
+   ${FC} -o  test_omp.x test_omp.f90 -fopenmp 2>&1 > /dev/null
+   
+   if [ -f test_omp.x ]
+   then
+     ./test_omp.x 2>&1 > /dev/null
+   fi	
+} # end test_FC_compiler
+
+
+function test_NC-Fortran() {
+	   msg " +  Test  NC w/Fortran Compiler (FC)   +"
+   # Here testing the netCDF libraries found with test data To Be Defined.
+   
+   NC_fortran_filelist=($(ls ../${SRC_TST_DIR}/netCDF-F/*_wr.f*))   
+
+   for fortran_F in "${NC_fortran_filelist[@]}"
+   do
+     cp ${fortran_F} .     
+     basename_F=$(basename ${fortran_F} .f90)
+     ${FC} -o ${basename_F}.x ${INCNETCDF} ${fortran_F} ${LIBNETCDF} 2>&1 > /dev/null
+   
+     if [ -f ${basename_F}.x ]
+     then
+        ./${basename_F}.x 2>&1 > /dev/null
+         vrb "Success for ${basename_F}"
+     fi
+     
+   done
+
+   NC_fortran_filelist=($(ls ../${SRC_TST_DIR}/netCDF-F/*_rd.f*))   
+
+   for fortran_F in "${NC_fortran_filelist[@]}"
+   do
+     cp ${fortran_F} .     
+     basename_F=$(basename ${fortran_F} .f90)
+     ${FC} -o ${basename_F}.x ${INCNETCDF} ${fortran_F} ${LIBNETCDF} 2>&1 > /dev/null
+   
+     if [ -f ${basename_F}.x ]
+     then
+        ./${basename_F}.x 2>&1 > /dev/null
+         vrb "Success for ${basename_F}"
+     fi
+     
+   done
+} # end test_NC-Fortran
+
 setup_colors
 parse_params "$@"
-
-configsDIR="configs"
-
 
 msg "  ===================================== "
 msg " +                                     +"
@@ -242,124 +315,13 @@ do
    
    vrb "${env_to_build[${indx_conf}]} env FC = ${FC_version}"
       
-   NC_FINC_line=$(grep "NC_F_INC" ${conf})
-   declare -x ${NC_FINC_line}
+   test_FC_compiler
    
-   if [ -f ${NC_F_INC}/netcdf.mod ]
-   then
-     vrb "include netCDF F found"
-   else
-     die "Incorrect netCDF Fortran env. (include)"
-   fi
-
-   NC_FLIB_line=$(grep "NC_F_LIB" ${conf})
-   declare -x ${NC_FLIB_line}
+   source ${script_dir}/src/check_NC-env.sh
+   check_NC-env
    
-   if [ -f ${NC_F_LIB}/libnetcdff.a ]
-   then
-     vrb "library netCDF F found"
-   else
-     die "Incorrect netCDF Fortran env. (library)"
-   fi
-
-   NC_CINC_line=$(grep "NC_C_INC" ${conf})
-   declare -x ${NC_CINC_line}
-   
-   if [ -f ${NC_C_INC}/netcdf.h ]
-   then
-     vrb "include netCDF C found"
-   else
-     die "Incorrect netCDF C env. (include)"
-   fi
-
-   NC_CLIB_line=$(grep "NC_C_LIB" ${conf})
-   declare -x ${NC_CLIB_line}
-   
-   if [ -f ${NC_C_LIB}/libnetcdf.so ]
-   then
-     vrb "library netCDF C found"
-   else
-     die "Incorrect netCDF C env. (library)"
-   fi
-
-   LIBNETCDFF="-Wl,-rpath=${NC_F_LIB} -L${NC_F_LIB} -lnetcdff"
-   INCNETCDFF="-I${NC_F_INC}"
-   LIBNETCDFC="-Wl,-rpath=${NC_C_LIB} -L${NC_C_LIB} -lnetcdf"
-   INCNETCDFC="-I${NC_C_INC}"
-   
-   LIBNETCDF="${LIBNETCDFC} ${LIBNETCDFF}"
-   INCNETCDF="${INCNETCDFC} ${INCNETCDFF}"
-   
-   msg " +  Testing   Fortran Compiler (FC)    +"
-   # Here testing the fortran compiler(s) found with test data To Be Defined.
-   cp ${SRC_TST_DIR}/*.f* ${tempDIR}/.
-   
-   cd ${tempDIR}
-   
-   vrb "Testing plain FORTRAN ..."   
-   
-   ${FC} -o  fpi_serial.x fpi_serial.f 2>&1 > /dev/null
-   
-   if [ -f fpi_serial.x ]
-   then
-     ./fpi_serial.x 2>&1 > /dev/null
-   fi
-
-   vrb "Testing mpi FORTRAN ..."   
- 
-   #~ To be Done correctly with MPI Fortran detection ...  
-   #~ ${FC} -o  fpi_serial.x fpi_serial.f 2>&1 > /dev/null
-   
-   #~ if [ -f fpi_serial.x ]
-   #~ then
-     #~ ./fpi_serial.x
-   #~ fi
-
-
-   vrb "Testing omp FORTRAN ..."   
- 
-   ${FC} -o  test_omp.x test_omp.f90 -fopenmp 2>&1 > /dev/null
-   
-   if [ -f test_omp.x ]
-   then
-     ./test_omp.x 2>&1 > /dev/null
-   fi
-   
-   msg " +  Test  NC w/Fortran Compiler (FC)   +"
-   # Here testing the netCDF libraries found with test data To Be Defined.
-   
-   NC_fortran_filelist=($(ls ../${SRC_TST_DIR}/netCDF-F/*_wr.f*))   
-
-   for fortran_F in "${NC_fortran_filelist[@]}"
-   do
-     cp ${fortran_F} .     
-     basename_F=$(basename ${fortran_F} .f90)
-     ${FC} -o ${basename_F}.x ${INCNETCDF} ${fortran_F} ${LIBNETCDF} 2>&1 > /dev/null
-   
-     if [ -f ${basename_F}.x ]
-     then
-        ./${basename_F}.x 2>&1 > /dev/null
-         vrb "Success for ${basename_F}"
-     fi
-     
-   done
-
-   NC_fortran_filelist=($(ls ../${SRC_TST_DIR}/netCDF-F/*_rd.f*))   
-
-   for fortran_F in "${NC_fortran_filelist[@]}"
-   do
-     cp ${fortran_F} .     
-     basename_F=$(basename ${fortran_F} .f90)
-     ${FC} -o ${basename_F}.x ${INCNETCDF} ${fortran_F} ${LIBNETCDF} 2>&1 > /dev/null
-   
-     if [ -f ${basename_F}.x ]
-     then
-        ./${basename_F}.x 2>&1 > /dev/null
-         vrb "Success for ${basename_F}"
-     fi
-     
-   done
-   
+   test_NC-Fortran
+      
    cd ${script_dir}
    
    if [ -d ${env_DIR}/${env_type} ]
