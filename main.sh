@@ -18,11 +18,11 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.1.0"
+script_version="0.1.1"
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
-verbose=1
+verbose=0
 
 usage() {
   cat <<EOF
@@ -91,7 +91,7 @@ parse_params() {
   while :; do
     case "${1-}" in
     -h | --help) usage ;;
-    -v | --verbose) set -x ;;
+    -v | --verbose) verbose=1 ;;
     --no-color) NO_COLOR=1 ;;
     --version) display_version ;;
     -?*) die "Unknown option: $1" ;;
@@ -144,12 +144,12 @@ parse_params "$@"
 configsDIR="configs"
 
 
-msg " ====================================="
-msg " +                                   +"
-msg " +             LIPaS                 +"
-msg " +           version ${script_version}           +"
-msg " +                                   +"
-msg " ====================================="
+msg "  ===================================== "
+msg " +                                     +"
+msg " +              LIPaS                  +"
+msg " +            version ${script_version}            +"
+msg " +                                     +"
+msg "  ===================================== "
 
 msg ""
 
@@ -176,7 +176,7 @@ then
     done
     
     nb_valid_conf=${#LIST_CONF_FILES[@]}
-    vrb "Found ${nb_valid_conf} valid files in conf DIR"
+    vrb "Found ${nb_valid_conf} valid file(s) in conf DIR"
 
 else
 
@@ -231,11 +231,13 @@ done
 
 # Retreive the compiler /version ...
 
-msg " ===  Analysing Environnements  ======"
+msg "  ===  Analysing Environnements  ====== "
 
 tempDIR="tmp-$(hexdump -n 8 -v -e '/1 "%02X"' /dev/urandom)"
 mkdir ${tempDIR}
 
+env_DIR="envs"
+mkdir -p ${env_DIR}
 
 for (( indx_conf=0; indx_conf<=${#conf_to_build[@]}-1; indx_conf++ ))
 do
@@ -296,7 +298,7 @@ do
    LIBNETCDF="${LIBNETCDFC} ${LIBNETCDFF}"
    INCNETCDF="${INCNETCDFC} ${INCNETCDFF}"
    
-   msg " +  Testing   Fortran Compiler (FC)  +"
+   msg " +  Testing   Fortran Compiler (FC)    +"
    # Here testing the fortran compiler(s) found with test data To Be Defined.
    cp src-tst/*.f* ${tempDIR}/.
    
@@ -331,7 +333,7 @@ do
      ./test_omp.x 2>&1 > /dev/null
    fi
    
-   msg " +  Test  NC w/Fortran Compiler (FC) +"
+   msg " +  Test  NC w/Fortran Compiler (FC)   +"
    # Here testing the netCDF libraries found with test data To Be Defined.
    
    NC_fortran_filelist=($(ls ../src-tst/netCDF-F/*_wr.f*))   
@@ -365,8 +367,26 @@ do
      fi
      
    done
-
    
+   cd ${script_dir}
+   
+   if [ -d ${env_DIR}/${env_type} ]
+   then
+     # Delete, we are renewing the configuration
+     rm -fR ${env_DIR}/${env_type}
+   fi
+  
+   mkdir -p ${env_DIR}/${env_type}
+      
+   cd ${env_DIR}/${env_type}
+    
+   vrb "Generating .pkg" 
+   echo "FC = ${FC}" >> gen.pkg
+   vrb "Generating .libs"
+   echo "INCNETCDF = ${INCNETCDF}" >> gen.libs
+   echo "LIBNETCDF = ${LIBNETCDF}" >> gen.libs
+            
+   msg " +  Generating ${env_type} environnement ...   + ${GREEN} [Done] ${NOFORMAT}" 
 done
 
 cd ${script_dir}
