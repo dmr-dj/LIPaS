@@ -271,6 +271,25 @@ do
 done
 
 cd ${MAIN_dir}
+
+# From there, the code for setting up the base configuration
+
+# Here a first version of installing any library in the base config
+# Steps are:
+# 	=> retreive
+# 		-> method / git = git clone in tmp
+#   => build
+#       -> depends on language/method : autotools = configure ; make ; check success 
+#   => install
+#       -> in general a form of make install
+
+
+
+
+
+
+
+
 rm -fR ${tempDIR}
 
 

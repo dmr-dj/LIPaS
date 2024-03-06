@@ -1,0 +1,24 @@
+# 2024-03-06 / LIPaS / (c) dmr-dj
+
+title="makedepf90 / LIPaS configuration file"
+
+[pkginfo]
+name="makedepf90"
+owner="Erik Edelmann"
+license="GPL-2.0"
+date=""
+type="external"
+
+[retrieve]
+method="git"
+gitpath="https://github.com/dmr-dj/makedepf90.git"
+
+[dependencies]
+pkgs=""
+
+[build]
+lang="CC"
+method="autotools"
+
+[install]
+exec="makedepf90"
