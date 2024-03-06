@@ -22,3 +22,5 @@ method="autotools"
 
 [install]
 exec="makedepf90"
+
+# The End of All Things (op. cit.)

@@ -283,6 +283,9 @@ cd ${MAIN_dir}
 #   => install
 #       -> in general a form of make install
 
+source ${MAIN_dir}/${MODULES_D}/read-toml.sh
+read-toml pkgs-db/makedepf90.toml
+
 
 
 
