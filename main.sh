@@ -20,7 +20,7 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 prog_name="LIPaS"
 script_version="0.1.1"
 
-script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
+MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
 verbose=0
 
@@ -138,81 +138,6 @@ function show_progress {
     fi
 }
 
-function test_FC_compiler(){
-
-   msg " +  Testing   Fortran Compiler (FC)    +"
-   # Here testing the fortran compiler(s) found with test data To Be Defined.
-   cp ${SRC_TST_DIR}/*.f* ${tempDIR}/.
-   
-   cd ${tempDIR}
-   
-   vrb "Testing plain FORTRAN ..."   
-   
-   ${FC} -o  fpi_serial.x fpi_serial.f 2>&1 > /dev/null
-   
-   if [ -f fpi_serial.x ]
-   then
-     ./fpi_serial.x 2>&1 > /dev/null
-   fi
-
-   vrb "Testing mpi FORTRAN ..."   
- 
-   #~ To be Done correctly with MPI Fortran detection ...  
-   #~ ${FC} -o  fpi_serial.x fpi_serial.f 2>&1 > /dev/null
-   
-   #~ if [ -f fpi_serial.x ]
-   #~ then
-     #~ ./fpi_serial.x
-   #~ fi
-
-
-   vrb "Testing omp FORTRAN ..."   
- 
-   ${FC} -o  test_omp.x test_omp.f90 -fopenmp 2>&1 > /dev/null
-   
-   if [ -f test_omp.x ]
-   then
-     ./test_omp.x 2>&1 > /dev/null
-   fi	
-} # end test_FC_compiler
-
-
-function test_NC-Fortran() {
-	   msg " +  Test  NC w/Fortran Compiler (FC)   +"
-   # Here testing the netCDF libraries found with test data To Be Defined.
-   
-   NC_fortran_filelist=($(ls ../${SRC_TST_DIR}/netCDF-F/*_wr.f*))   
-
-   for fortran_F in "${NC_fortran_filelist[@]}"
-   do
-     cp ${fortran_F} .     
-     basename_F=$(basename ${fortran_F} .f90)
-     ${FC} -o ${basename_F}.x ${INCNETCDF} ${fortran_F} ${LIBNETCDF} 2>&1 > /dev/null
-   
-     if [ -f ${basename_F}.x ]
-     then
-        ./${basename_F}.x 2>&1 > /dev/null
-         vrb "Success for ${basename_F}"
-     fi
-     
-   done
-
-   NC_fortran_filelist=($(ls ../${SRC_TST_DIR}/netCDF-F/*_rd.f*))   
-
-   for fortran_F in "${NC_fortran_filelist[@]}"
-   do
-     cp ${fortran_F} .     
-     basename_F=$(basename ${fortran_F} .f90)
-     ${FC} -o ${basename_F}.x ${INCNETCDF} ${fortran_F} ${LIBNETCDF} 2>&1 > /dev/null
-   
-     if [ -f ${basename_F}.x ]
-     then
-        ./${basename_F}.x 2>&1 > /dev/null
-         vrb "Success for ${basename_F}"
-     fi
-     
-   done
-} # end test_NC-Fortran
 
 setup_colors
 parse_params "$@"
@@ -230,12 +155,12 @@ source ./LIPaS.params
 
 vrb "=======   LOCATING CONFIGS   ======="
 
-if [ -d ${script_dir}/${configsDIR}/${ComputerName} ]
+if [ -d ${MAIN_dir}/${configsDIR}/${ComputerName} ]
 then
 
     vrb "Detected a configuration DIR"
 
-    CONF_DIR="${script_dir}/${configsDIR}/${ComputerName}"
+    CONF_DIR="${MAIN_dir}/${configsDIR}/${ComputerName}"
     LIST_CONF_FILES=()
     for fich in $(ls ${CONF_DIR}/${confFile}*)
     do
@@ -314,15 +239,17 @@ do
    FC_version=$(${FC} --version | grep -i ${env_to_build[${indx_conf}]} | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
    
    vrb "${env_to_build[${indx_conf}]} env FC = ${FC_version}"
-      
+
+   source ${MAIN_dir}/${MODULES_D}/test-FC_compiler.sh      
    test_FC_compiler
    
-   source ${script_dir}/src/check_NC-env.sh
+   source ${MAIN_dir}/${MODULES_D}/check_NC-env.sh
    check_NC-env
    
-   test_NC-Fortran
+   source ${MAIN_dir}/${MODULES_D}/test-NC_Fortran.sh   
+   test-NC_Fortran
       
-   cd ${script_dir}
+   cd ${MAIN_dir}
    
    if [ -d ${env_DIR}/${env_type} ]
    then
@@ -343,7 +270,7 @@ do
    msg " +  Generating ${env_type} environnement ...   + ${GREEN} [Done] ${NOFORMAT}" 
 done
 
-cd ${script_dir}
+cd ${MAIN_dir}
 rm -fR ${tempDIR}
 
 

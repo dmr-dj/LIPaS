@@ -2,6 +2,10 @@
 # == Standard location for the installation of LIPaS packages ==
 LIPaS_ROOT="${HOME}/.lipas"
 
+
+# == Location of the modules for functions ==
+MODULES_D="src"
+
 # == Standard location to read config files ==
 configsDIR="configs"
 
