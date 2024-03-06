@@ -51,3 +51,4 @@ function test_FC_compiler(){
      ./test_omp.x 2>&1 > /dev/null
    fi	
 } # end test_FC_compiler
+# The End of All Things (op. cit.)

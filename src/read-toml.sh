@@ -82,14 +82,11 @@ function read-toml () {
    declare -A tomlVarsInTable
    get_tomlVarsInTables ${tomlFile}
 
-# if need to check the content of the hash table   
-   #~ for i in "${!tomlVarsInTable[@]}"
-   #~ do
-         #~ echo "${i} ${tomlVarsInTable[$i]}"
-   #~ done
+# Copy back the result to the main global variable
+   for k in "${!tomlVarsInTable[@]}"; do tomlFileContent[$k]=${tomlVarsInTable[$k]}; done   
 
-   
    unset tomlTableNames
    unset tomlTableIndex
    unset tomlVarsInTable 		
 }
+# The End of All Things (op. cit.)

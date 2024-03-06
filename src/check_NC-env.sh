@@ -64,3 +64,4 @@ function check_NC-env(){
    LIBNETCDF="${LIBNETCDFC} ${LIBNETCDFF}"
    INCNETCDF="${INCNETCDFC} ${INCNETCDFF}"
 } # check_NC-env
+# The End of All Things (op. cit.)

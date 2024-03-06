@@ -283,10 +283,19 @@ cd ${MAIN_dir}
 #   => install
 #       -> in general a form of make install
 
+declare -A tomlFileContent
+
 source ${MAIN_dir}/${MODULES_D}/read-toml.sh
 read-toml pkgs-db/makedepf90.toml
 
+# To check the hash table content
+#~ for i in "${!tomlFileContent[@]}"
+#~ do
+ #~ echo "${i} ${tomlFileContent[$i]}"
+#~ done
 
+source ${MAIN_dir}/${MODULES_D}/retrieve_pkg.sh
+retrieve_pkg tomlFileContent
 
 
 
