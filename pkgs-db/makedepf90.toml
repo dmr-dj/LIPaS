@@ -20,7 +20,7 @@ pkgs=""
 lang="CC"
 method="autotools"
 
-[install]
+[installtst]
 exec="makedepf90"
 
 # The End of All Things (op. cit.)

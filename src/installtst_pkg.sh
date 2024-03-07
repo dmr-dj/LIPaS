@@ -15,40 +15,26 @@
 # limitations under the License.
 
 
-function retrieve_pkg () {
-   
+function installtst_pkg () {
+	
    # Expectation is to pass the toml associative array
    #  we access it here as in https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
    local -n tomlAA=${1}
    local name_pkg=${2}
-               
-   # Known retrieval methodologies!
-   #
-   # git / needs a gitpath for git clone to be successful
-   # svn / needs a svn checkout path
-   # 
+    
+   for key in ${!tomlAA[@]}
+   do
+     if [ ${key//\"} == "exec" ]
+     then # this should have installed a binary
+        if [ -f ${LIPaS_BIN}/${tomlAA[${key}]//\"} ]
+        then
+           #~ vrb "bin of ${name_pkg//\"} exists"
+           return 0
+        fi
+     fi
+     return 1
+   done
    
-   case ${tomlAA["method"]} in
-     \"git\")
-        vrb "Attempting git retrieve"
-        git clone ${tomlAA["gitpath"]//\"} ${MAIN_dir}/${tempDIR}/${name_pkg} --quiet 2>&1 > /dev/null
-      ;;
-      *)
-        die "${tomlAA["method"]} retrieve not implemented yet"
-      ;;
-   esac
-   
-   #~ # To check the hash table content
-   #~ for i in "${!tomlAA[@]}"
-   #~ do
-     #~ echo "${i} ${tomlAA[$i]}"
-   #~ done
-   		
-} 
-
-
-
-
-
+}
 
 # The End of All Things (op. cit.)

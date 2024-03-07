@@ -352,7 +352,7 @@ if Texists "${TODO}" in tomlFileContent
 then
   source ${MAIN_dir}/${MODULES_D}/build_pkg.sh
   build_pkg tableContent ${PKG_NAME}  
-  success_retrieve=$?
+  success_pkg=$?
 else
   vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
 fi
@@ -364,7 +364,32 @@ else
   vrb "${TODO}        lib ${PKG_NAME} [OK]" 
 fi
 
-#~ rm -fR ${tempDIR}
+# Finalize the given package: check that everything is OK
+
+unset tableContent
+declare -A tableContent
+
+TODO="installtst"
+
+if Texists "${TODO}" in tomlFileContent
+then
+  source ${MAIN_dir}/${MODULES_D}/installtst_pkg.sh
+  installtst_pkg tableContent ${PKG_NAME}  
+  success_pkg=$?
+else
+  vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
+fi
+
+if [ ! ${success_pkg} -eq 0 ]
+then
+  die "${TODO} ${PKG_NAME} failed"
+else
+  vrb "${TODO}   lib ${PKG_NAME} [OK]" 
+fi
+
+msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}" 
+
+rm -fR ${tempDIR}
 
 
 # The End of All Things (op. cit.)

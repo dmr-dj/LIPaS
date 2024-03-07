@@ -67,3 +67,6 @@ function build_pkg () {
    echo ${!tomlAA[@]}
 
 }
+
+
+# The End of All Things (op. cit.)
