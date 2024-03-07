@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.1.1"
+script_version="0.2.0"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -152,6 +152,21 @@ msg "  ===================================== "
 msg ""
 
 source ./LIPaS.params
+
+msg "  = Main install dir is set to:       = "
+msg "       ${LIPaS_ROOT} "
+
+msg ""
+
+# Creating the ROOT sub_directories
+
+LIPaS_BIN="${LIPaS_ROOT}/bin"
+LIPaS_INC="${LIPaS_ROOT}/inc"
+LIPaS_LIB="${LIPaS_ROOT}/lib"
+
+mkdir -p ${LIPaS_BIN}
+mkdir -p ${LIPaS_INC}
+mkdir -p ${LIPaS_LIB}
 
 vrb "=======   LOCATING CONFIGS   ======="
 
@@ -288,21 +303,68 @@ declare -A tomlFileContent
 source ${MAIN_dir}/${MODULES_D}/read-toml.sh
 read-toml pkgs-db/makedepf90.toml
 
-# To check the hash table content
+#~ # To check the hash table content
 #~ for i in "${!tomlFileContent[@]}"
 #~ do
  #~ echo "${i} ${tomlFileContent[$i]}"
 #~ done
 
-source ${MAIN_dir}/${MODULES_D}/retrieve_pkg.sh
-retrieve_pkg tomlFileContent
+unset tableContent
+declare -A tableContent
 
+TODO="pkginfo"
 
+if Texists "${TODO}" in tomlFileContent
+then
+  PKG_NAME=${tableContent["name"]//\"}
+  vrb "Trying to install ${PKG_NAME}"
+else
+  die "Could not find infos over library [unkonwn]"
+fi
 
+unset tableContent
+declare -A tableContent
 
+TODO="retrieve"
 
+if Texists "${TODO}" in tomlFileContent
+then
+  source ${MAIN_dir}/${MODULES_D}/retrieve_pkg.sh
+  retrieve_pkg tableContent ${PKG_NAME}
+  success_pkg=$?
+else
+  vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
+fi
 
-rm -fR ${tempDIR}
+if [ ! ${success_pkg} -eq 0 ]
+then
+  die "${TODO} ${PKG_NAME} failed"
+else
+  vrb "${TODO}     lib ${PKG_NAME} [OK]" 
+fi
+
+unset tableContent
+declare -A tableContent
+
+TODO="build"
+
+if Texists "${TODO}" in tomlFileContent
+then
+  source ${MAIN_dir}/${MODULES_D}/build_pkg.sh
+  build_pkg tableContent ${PKG_NAME}  
+  success_retrieve=$?
+else
+  vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
+fi
+
+if [ ! ${success_pkg} -eq 0 ]
+then
+  die "${TODO} ${PKG_NAME} failed"
+else
+  vrb "${TODO}        lib ${PKG_NAME} [OK]" 
+fi
+
+#~ rm -fR ${tempDIR}
 
 
 # The End of All Things (op. cit.)

@@ -89,4 +89,31 @@ function read-toml () {
    unset tomlTableIndex
    unset tomlVarsInTable 		
 }
+# reworked from https://stackoverflow.com/questions/13219634/easiest-way-to-check-for-an-index-or-a-key-in-an-array
+# with partial match as well and return the values of the associated table
+function Texists () {
+	# Expects 1 : a key 2 : "in" and 3 an Associative Array
+	local lookupKey
+	lookupKey=${1}
+	
+	local -n aArray=${3}
+	
+	for key in "${!aArray[@]}"
+	do
+	    if [[ "${key}" =~ .*"${lookupKey}"*. ]]
+	    then
+	      #~ echo "${lookupKey} exists in Table"
+	      toStrip="[${lookupKey}]."
+	      stripedKey=${key##"${toStrip}"}
+
+	      tableContent[${stripedKey}]=${aArray[${key}]}
+	    fi
+	done
+	if [ ${#tableContent[@]} -gt 0 ]
+	then
+	   return 0
+	else
+	   return 1
+	fi
+}
 # The End of All Things (op. cit.)
