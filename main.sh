@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.2.0"
+script_version="0.2.2"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -322,70 +322,29 @@ else
   die "Could not find infos over library [unkonwn]"
 fi
 
-unset tableContent
-declare -A tableContent
+declare -a pkg_work=(retrieve build installtst)
 
-TODO="retrieve"
+for TODO in ${pkg_work[@]}
+do
+  unset tableContent
+  declare -A tableContent
 
-if Texists "${TODO}" in tomlFileContent
-then
-  source ${MAIN_dir}/${MODULES_D}/retrieve_pkg.sh
-  retrieve_pkg tableContent ${PKG_NAME}
-  success_pkg=$?
-else
-  vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
-fi
+  if Texists "${TODO}" in tomlFileContent
+  then
+    source ${MAIN_dir}/${MODULES_D}/"${TODO}"_pkg.sh
+    "${TODO}"_pkg tableContent ${PKG_NAME}
+    success_pkg=$?
+  else
+    vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
+  fi
 
-if [ ! ${success_pkg} -eq 0 ]
-then
-  die "${TODO} ${PKG_NAME} failed"
-else
-  vrb "${TODO}     lib ${PKG_NAME} [OK]" 
-fi
-
-unset tableContent
-declare -A tableContent
-
-TODO="build"
-
-if Texists "${TODO}" in tomlFileContent
-then
-  source ${MAIN_dir}/${MODULES_D}/build_pkg.sh
-  build_pkg tableContent ${PKG_NAME}  
-  success_pkg=$?
-else
-  vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
-fi
-
-if [ ! ${success_pkg} -eq 0 ]
-then
-  die "${TODO} ${PKG_NAME} failed"
-else
-  vrb "${TODO}        lib ${PKG_NAME} [OK]" 
-fi
-
-# Finalize the given package: check that everything is OK
-
-unset tableContent
-declare -A tableContent
-
-TODO="installtst"
-
-if Texists "${TODO}" in tomlFileContent
-then
-  source ${MAIN_dir}/${MODULES_D}/installtst_pkg.sh
-  installtst_pkg tableContent ${PKG_NAME}  
-  success_pkg=$?
-else
-  vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
-fi
-
-if [ ! ${success_pkg} -eq 0 ]
-then
-  die "${TODO} ${PKG_NAME} failed"
-else
-  vrb "${TODO}   lib ${PKG_NAME} [OK]" 
-fi
+  if [ ! ${success_pkg} -eq 0 ]
+  then
+    die "${TODO} ${PKG_NAME} failed"
+  else
+    vrb "${TODO}     lib ${PKG_NAME} [OK]" 
+  fi
+done
 
 msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}" 
 

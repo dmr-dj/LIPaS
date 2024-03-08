@@ -16,8 +16,8 @@
 
 function build_pkg_cc () {
 	
-  local method=${1//\"}
-  
+  local method=${1//\"/}
+    
   case ${method} in 
     autotools)
      vrb "Attmpt. ${method} on ${PKG_NAME}"
@@ -51,13 +51,13 @@ function build_pkg () {
    local -n tomlAA=${1}
    local name_pkg=${2}
 
-   case ${tomlAA["lang"]} in
+   case ${tomlAA["lang"]//\"} in
      
-     \"CC\")
+     CC)
         build_pkg_cc ${tomlAA["method"]}
         return $?
      ;;
-     \"FF\")
+     FF)
         build_pkg_ff ${tomlAA["method"]}     
      ;;
      *)

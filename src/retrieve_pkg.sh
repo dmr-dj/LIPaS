@@ -27,6 +27,13 @@ function retrieve_pkg () {
    # git / needs a gitpath for git clone to be successful
    # svn / needs a svn checkout path
    # 
+  
+  
+   #~ # To check the hash table content
+   #~ for i in "${!tomlAA[@]}"
+   #~ do
+     #~ echo "${i} ${tomlAA[$i]}"
+   #~ done
    
    case ${tomlAA["method"]} in
      \"git\")
@@ -37,12 +44,7 @@ function retrieve_pkg () {
         die "${tomlAA["method"]} retrieve not implemented yet"
       ;;
    esac
-   
-   #~ # To check the hash table content
-   #~ for i in "${!tomlAA[@]}"
-   #~ do
-     #~ echo "${i} ${tomlAA[$i]}"
-   #~ done
+  
    		
 } 
 

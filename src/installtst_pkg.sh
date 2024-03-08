@@ -24,7 +24,7 @@ function installtst_pkg () {
     
    for key in ${!tomlAA[@]}
    do
-     if [ ${key//\"} == "exec" ]
+     if [ ${key} == "exec" ]
      then # this should have installed a binary
         if [ -f ${LIPaS_BIN}/${tomlAA[${key}]//\"} ]
         then
