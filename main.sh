@@ -362,7 +362,66 @@ fi
 
 msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}" 
 
-rm -fR ${tempDIR}
+# PKGS_TO_INSTALL ... should be in a loop at some point!
 
+
+PKGS_TO_INSTALL="dinsol"
+
+read-toml pkgs-db/${PKGS_TO_INSTALL}.toml
+
+#~ # To check the hash table content
+#~ for i in "${!tomlFileContent[@]}"
+#~ do
+ #~ echo "${i} ${tomlFileContent[$i]}"
+#~ done
+
+unset tableContent
+declare -A tableContent
+
+TODO="pkginfo"
+
+if Texists "${TODO}" in tomlFileContent
+then
+  PKG_NAME=${tableContent["name"]//\"}
+  vrb "Trying to install ${PKG_NAME}"
+else
+  die "Could not find infos over library [unkonwn]"
+fi
+
+if [ -f "pkgs-db/${PKG_NAME}.ok" ]
+then
+
+  vrb "${PKG_NAME} is already installed"
+
+else
+  declare -a pkg_work=(retrieve build)
+
+  for TODO in ${pkg_work[@]}
+  do
+    unset tableContent
+    declare -A tableContent
+
+    if Texists "${TODO}" in tomlFileContent
+    then
+      source ${MAIN_dir}/${MODULES_D}/"${TODO}"_pkg.sh
+      "${TODO}"_pkg tableContent ${PKG_NAME}
+      success_pkg=$?
+    else
+      vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
+    fi
+
+    if [ ! ${success_pkg} -eq 0 ]
+    then
+      die "${TODO} ${PKG_NAME} failed"
+    else
+      vrb "${TODO}     lib ${PKG_NAME} [OK]" 
+    fi
+  done
+fi
+
+msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}" 
+
+
+#~ rm -fR ${tempDIR}
 
 # The End of All Things (op. cit.)

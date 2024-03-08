@@ -1,0 +1,27 @@
+# 2024-03-08 / LIPaS / (c) dmr-dj
+
+title="dinsol-v1/ LIPaS configuration file"
+
+[pkginfo]
+name="dinsol"
+owner="Emerson D. Olivera"
+license="GPL-3.0"
+date=""
+type="external"
+
+[retrieve]
+method="git"
+gitpath="https://github.com/dmr-dj/dinsol-v1.git"
+
+[dependencies]
+pkgs=""
+
+[build]
+lang="FF"
+method="make"
+mkfile="ad-hoc"
+
+[installtst]
+lib="libdinsol"
+
+# The End of All Things (op. cit.)
