@@ -29,6 +29,7 @@ function installtst_pkg () {
         if [ -f ${LIPaS_BIN}/${tomlAA[${key}]//\"} ]
         then
            #~ vrb "bin of ${name_pkg//\"} exists"
+           echo ${LIPaS_BIN}/${tomlAA[${key}]//\"} > "pkgs-db/${PKG_NAME}.ok"
            return 0
         fi
      fi

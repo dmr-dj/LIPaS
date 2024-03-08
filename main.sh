@@ -301,7 +301,13 @@ cd ${MAIN_dir}
 declare -A tomlFileContent
 
 source ${MAIN_dir}/${MODULES_D}/read-toml.sh
-read-toml pkgs-db/makedepf90.toml
+
+# PKGS_TO_INSTALL ... should be in a loop at some point!
+
+
+PKGS_TO_INSTALL="makedepf90"
+
+read-toml pkgs-db/${PKGS_TO_INSTALL}.toml
 
 #~ # To check the hash table content
 #~ for i in "${!tomlFileContent[@]}"
@@ -322,29 +328,37 @@ else
   die "Could not find infos over library [unkonwn]"
 fi
 
-declare -a pkg_work=(retrieve build installtst)
 
-for TODO in ${pkg_work[@]}
-do
-  unset tableContent
-  declare -A tableContent
+if [ -f "pkgs-db/${PKG_NAME}.ok" ]
+then
 
-  if Texists "${TODO}" in tomlFileContent
-  then
-    source ${MAIN_dir}/${MODULES_D}/"${TODO}"_pkg.sh
-    "${TODO}"_pkg tableContent ${PKG_NAME}
-    success_pkg=$?
-  else
-    vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
-  fi
+  vrb "${PKG_NAME} is already installed"
 
-  if [ ! ${success_pkg} -eq 0 ]
-  then
-    die "${TODO} ${PKG_NAME} failed"
-  else
-    vrb "${TODO}     lib ${PKG_NAME} [OK]" 
-  fi
-done
+else
+  declare -a pkg_work=(retrieve build installtst)
+
+  for TODO in ${pkg_work[@]}
+  do
+    unset tableContent
+    declare -A tableContent
+
+    if Texists "${TODO}" in tomlFileContent
+    then
+      source ${MAIN_dir}/${MODULES_D}/"${TODO}"_pkg.sh
+      "${TODO}"_pkg tableContent ${PKG_NAME}
+      success_pkg=$?
+    else
+      vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
+    fi
+
+    if [ ! ${success_pkg} -eq 0 ]
+    then
+      die "${TODO} ${PKG_NAME} failed"
+    else
+      vrb "${TODO}     lib ${PKG_NAME} [OK]" 
+    fi
+  done
+fi
 
 msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}" 
 
