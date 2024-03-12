@@ -75,6 +75,10 @@ die() {
   exit "$code"
 }
 
+function trim () {
+  echo ${1} | awk '{$1=$1;print}'
+}
+
 display_version() {
 
   msg "${prog_name} version ${script_version}"
