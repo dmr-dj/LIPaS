@@ -276,6 +276,8 @@ done
 
 msg "  ===  Analysing Environnements  ====== "
 
+# [TODO] Drawback this is only for one environnement at this time, hardwired
+
 for (( indx_conf=0; indx_conf<=${#conf_to_build[@]}-1; indx_conf++ ))
 do
    conf=${conf_to_build[${indx_conf}]}
@@ -313,6 +315,15 @@ do
    vrb "Generating .libs"
    echo "INCNETCDF = ${INCNETCDF}" >> gen.libs
    echo "LIBNETCDF = ${LIBNETCDF}" >> gen.libs
+   
+   # Adding the checking of the env.dict
+   
+   if [ -f ${MAIN_dir}/${DICT_DIR}/${env_to_build[${indx_conf}]}.dict ]
+   then
+       vrb "Found dictionnary file for ${env_to_build[${indx_conf}]}"
+   else
+       die "Could not find dictionnary file for ${env_to_build[${indx_conf}]}"
+   fi
             
    msg " +  Generating ${env_type} environnement ...   + ${GREEN} [Done] ${NOFORMAT}" 
 done
