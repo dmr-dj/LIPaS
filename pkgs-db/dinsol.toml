@@ -20,6 +20,8 @@ pkgs=""
 lang="FF"
 method="make"
 mkfile="ad-hoc"
+target="lib"
+location="source"
 
 [installtst]
 lib="libdinsol"
