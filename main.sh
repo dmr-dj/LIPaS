@@ -79,6 +79,34 @@ function trim () {
   echo ${1} | awk '{$1=$1;print}'
 }
 
+function get_valuekey () {
+  # Send back the value from a key/value set
+  local my_value
+
+  if [[ ${1} =~ (.*)=(.*) ]]
+  then 
+    my_value=$( trim ${BASH_REMATCH[2]} )
+    echo ${my_value}
+    return 0
+  else 
+    return 1
+  fi
+}
+
+function get_keyvalue () {
+  # Send back the key from a key/value set
+  local my_value
+
+  if [[ ${1} =~ (.*)=(.*) ]]
+  then 
+    my_value=$( trim ${BASH_REMATCH[1]} )
+    echo ${my_value}
+    return 0
+  else 
+    return 1
+  fi
+}
+
 display_version() {
 
   msg "${prog_name} version ${script_version}"
