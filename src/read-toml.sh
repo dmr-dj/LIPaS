@@ -54,7 +54,7 @@ function get_tomlVarsInTables () {
       
       readarray -d '@' -t varsRead < <( head -n $(( ${END}-1 )) "${tomlFile}" | tail -n $(( ${END} - ${START} )) | grep "=" | tr '\n' '@' )
 
-      vrb "Table: ${tomlTableNames[i-1]}  ${#varsRead[@]}"  
+      #~ vrb "Table: ${tomlTableNames[i-1]}  ${#varsRead[@]}"  
       for (( j = 0 ; j < ${#varsRead[@]} ; j++ ))
       do
          key=$(echo ${varsRead[j]} | cut --delimiter== -f1)

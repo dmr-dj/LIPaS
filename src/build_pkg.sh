@@ -43,11 +43,11 @@ function build_pkg_ff () {
   local -n tomlinput=${1}	
   local method=${2//\"/}
     
-   # To check the hash table content
-   for i in "${!tomlinput[@]}"
-   do
-     echo "${i} ${tomlinput[$i]}"
-   done
+   #~ # To check the hash table content
+   #~ for i in "${!tomlinput[@]}"
+   #~ do
+     #~ echo "${i} ${tomlinput[$i]}"
+   #~ done
     
     
   case ${method} in 
@@ -126,16 +126,18 @@ function build_pkg_ff () {
         ;;
         esac
         
-        make --makefile=${mkefileinwork} clean 2>&1 > /dev/null        
-        make --makefile=${mkefileinwork} ${tomlAA["target"]//\"/}
-        make --makefile=${mkefileinwork} install
+        vrb "Building ${PKG_NAME}"
+                
+        make -s --makefile=${mkefileinwork} clean 2>&1 > /dev/null
+        make -s --makefile=${mkefileinwork} ${tomlAA["target"]//\"/} 2>&1 > /dev/null
+        make -s --makefile=${mkefileinwork} install 2>&1 > /dev/null
         
         cd ${hereiam}
      else
        die "Missing location directory: ${place_to_be}"
      fi
           
-     success_or_not=1
+     success_or_not=0
      return ${success_or_not}
     ;;
 	*)

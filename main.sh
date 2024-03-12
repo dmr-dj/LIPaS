@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.2.2"
+script_version="0.3.0"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -321,6 +321,7 @@ do
    if [ -f ${MAIN_dir}/${DICT_DIR}/${env_to_build[${indx_conf}]}.dict ]
    then
        vrb "Found dictionnary file for ${env_to_build[${indx_conf}]}"
+       DICT_FOR_ENV="${MAIN_dir}/${DICT_DIR}/${env_to_build[${indx_conf}]}.dict"
    else
        die "Could not find dictionnary file for ${env_to_build[${indx_conf}]}"
    fi
@@ -341,14 +342,16 @@ cd ${MAIN_dir}
 #   => install
 #       -> in general a form of make install
 
-declare -A tomlFileContent
 
 source ${MAIN_dir}/${MODULES_D}/read-toml.sh
 
 # PKGS_TO_INSTALL ... should be in a loop at some point!
 
+unset tomlFileContent
 
 PKGS_TO_INSTALL="makedepf90"
+
+declare -A tomlFileContent
 
 read-toml pkgs-db/${PKGS_TO_INSTALL}.toml
 
@@ -407,8 +410,11 @@ msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}"
 
 # PKGS_TO_INSTALL ... should be in a loop at some point!
 
+unset tomlFileContent
 
 PKGS_TO_INSTALL="dinsol"
+
+declare -A tomlFileContent
 
 read-toml pkgs-db/${PKGS_TO_INSTALL}.toml
 
@@ -437,15 +443,15 @@ then
   vrb "${PKG_NAME} is already installed"
 
 else
-  declare -a pkg_work=(retrieve build)
+  declare -a pkg_work=(retrieve build installtst)
 
   for TODO in ${pkg_work[@]}
   do
-    unset tableContent
     declare -A tableContent
-
+    
     if Texists "${TODO}" in tomlFileContent
     then
+
       source ${MAIN_dir}/${MODULES_D}/"${TODO}"_pkg.sh
       "${TODO}"_pkg tableContent ${PKG_NAME}
       success_pkg=$?
@@ -459,12 +465,14 @@ else
     else
       vrb "${TODO}     lib ${PKG_NAME} [OK]" 
     fi
+    
+    unset tableContent    
   done
 fi
 
 msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}" 
 
 
-#~ rm -fR ${tempDIR}
+rm -fR ${tempDIR}
 
 # The End of All Things (op. cit.)

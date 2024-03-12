@@ -22,18 +22,35 @@ function installtst_pkg () {
    local -n tomlAA=${1}
    local name_pkg=${2}
     
+   status_return=0 
+    
+   #~ # To check the hash table content
+   #~ for i in "${!tomlAA[@]}"
+   #~ do
+     #~ echo "${i} ${tomlAA[$i]}"
+   #~ done    
+    
    for key in ${!tomlAA[@]}
    do
      if [ ${key} == "exec" ]
      then # this should have installed a binary
         if [ -f ${LIPaS_BIN}/${tomlAA[${key}]//\"} ]
         then
-           #~ vrb "bin of ${name_pkg//\"} exists"
            echo ${LIPaS_BIN}/${tomlAA[${key}]//\"} > "pkgs-db/${PKG_NAME}.ok"
-           return 0
+        else
+           status_return=1
         fi
      fi
-     return 1
+     if [ ${key} == "lib" ]
+     then # this should have installed a library
+        if [ -f ${LIPaS_LIB}/${tomlAA[${key}]//\"}.a ]
+        then
+           echo ${LIPaS_LIB}/${tomlAA[${key}]//\"}.a > "pkgs-db/${PKG_NAME}.ok"
+        else
+           status_return=1
+        fi
+     fi
+     return ${status_return}
    done
    
 }
