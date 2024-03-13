@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.3.0"
+script_version="0.3.1"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -285,7 +285,8 @@ do
    FC_line=$(grep "FC" ${conf})
    declare -x ${FC_line}
    
-   FC_version=$(${FC} --version | grep -i ${env_to_build[${indx_conf}]} | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
+   # FC_version=$(${FC} --version | grep -i ${env_to_build[${indx_conf}]} | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
+   FC_version=$(${FC} --version | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
    
    vrb "${env_to_build[${indx_conf}]} env FC = ${FC_version}"
 

@@ -1,6 +1,7 @@
-FC="/opt/intel/oneapi/compiler/2021.4.0/linux/bin/intel64/ifort"
-NETCDFINC="/opt/libs-for-intelOneApi-2021-10-08/netCDF/include"
-NETCDFLIB="/opt/libs-for-intelOneApi-2021-10-08/netCDF/lib"
-NETCDFFINC="/opt/libs-for-intelOneApi-2021-10-08/netCDF-Fortran/include"
-NETCDFFLIB="/opt/libs-for-intelOneApi-2021-10-08/netCDF-Fortran/lib"
-
+# Temporary LIPaS conf file
+CC=/opt/intel/oneapi/compiler/2024.0/bin/icx
+FC=/opt/intel/oneapi/compiler/2024.0/bin/ifx
+NC_C_INC=/opt/libs-for-intelOneApi-2024-01-24/netCDF-C/include
+NC_F_INC=/opt/libs-for-intelOneApi-2024-01-24/netCDF-Fortran/include
+NC_F_LIB=/opt/libs-for-intelOneApi-2024-01-24/netCDF-Fortran/lib
+NC_C_LIB=/opt/libs-for-intelOneApi-2024-01-24/netCDF-C/lib
