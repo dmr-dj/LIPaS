@@ -18,11 +18,16 @@ function get_tomlTableNms () {
    local tomlFile=${1}
 
    vrb "Table reading"   
-   readarray -d ' ' -t tomlTableNames < <(grep '\[*\]' ${tomlFile} | tr '\n' ' ' )
-   readarray -d ' ' -t tomlTableIndex < <(grep -n '\[*\]' ${tomlFile} | cut --delimiter=: -f 1 | tr '\n' ' ' )	
+   
+   readarray -t tomlTableNames < <(grep '\[*\]' ${tomlFile})
+   readarray -t tomlTableIndex < <(grep -n '\[*\]' ${tomlFile} | cut --delimiter=: -f 1)	
    # [ToDo] Need to do a sanity check here, size of the two arrays should be identical, could be stored in a associative array
    
 }
+
+
+# [CHECK] Things could be perhaps simplified with a form as in:
+#         https://stackoverflow.com/questions/25251353/bash4-read-file-into-associative-array
 
 
 function get_tomlVarsInTables () {
@@ -52,7 +57,7 @@ function get_tomlVarsInTables () {
       fi
       # Extract the lines using the head and tail commands
       
-      readarray -d '@' -t varsRead < <( head -n $(( ${END}-1 )) "${tomlFile}" | tail -n $(( ${END} - ${START} )) | grep "=" | tr '\n' '@' )
+      readarray -t varsRead < <( head -n $(( ${END}-1 )) "${tomlFile}" | tail -n $(( ${END} - ${START} )) | grep "=")
 
       #~ vrb "Table: ${tomlTableNames[i-1]}  ${#varsRead[@]}"  
       for (( j = 0 ; j < ${#varsRead[@]} ; j++ ))

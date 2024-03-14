@@ -73,8 +73,8 @@ function build_pkg_ff () {
             mkefile="Makefile.LIPaS"
             dctfile="${DICT_FOR_ENV}"
                         
-            readarray -d '#' -t mkefile_array < <(cat ${mkefile} | grep --null -n \@.*\@ | cut --delimiter=: -f2 | tr '\n' '#')  
-            readarray -d '#' -t dctfile_array < <(cat ${dctfile} | grep --null -n \@.*\@ | cut --delimiter=: -f2 | tr '\n' '#')
+            readarray -t mkefile_array < <(cat ${mkefile} | grep --null -n \@.*\@ | cut --delimiter=: -f2)  
+            readarray -t dctfile_array < <(cat ${dctfile} | grep --null -n \@.*\@ | cut --delimiter=: -f2)
             
             mkefileinwork="Makefile.ins"
             

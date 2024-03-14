@@ -303,7 +303,7 @@ done
 
 vrb "I found ${#conf_to_build[@]} environnement(s)"
 
-declare -I CHOSEN_CONF=0
+declare -i CHOSEN_CONF=0
 
 if [ ${#conf_to_build[@]} -gt 1 ]
 then
