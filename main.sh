@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.3.1"
+script_version="0.3.3"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -288,7 +288,7 @@ conf_to_build=()
 
 for file in "${LIST_CONF_FILES[@]}"
 do
-   env_type=$(basename ${file} | cut -d. -f 2) # second file of config file is type of env, e.g. conf.gnu
+   env_type=$(basename ${file} | cut -d. -f 2) # second part of config file name is type of env, e.g. conf.gnu
    
    if [[ ${env_to_build[@]} =~ ${env_type} ]]
    then
@@ -334,7 +334,7 @@ fi
 
 msg "  ===  Analysing Environnements  ====== "
 
-   # CHOSEN_CONF is now defined by user above ...
+# CHOSEN_CONF is now defined by user above ...
 
 #~ for (( CHOSEN_CONF=0; CHOSEN_CONF<=${#conf_to_build[@]}-1; CHOSEN_CONF++ ))
 #~ do

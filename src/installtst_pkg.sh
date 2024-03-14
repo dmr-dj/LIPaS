@@ -15,6 +15,8 @@
 # limitations under the License.
 
 
+source ${MAIN_dir}/${MODULES_D}/gen_libmke.sh
+
 function installtst_pkg () {
 	
    # Expectation is to pass the toml associative array
@@ -44,7 +46,8 @@ function installtst_pkg () {
      if [ ${key} == "lib" ]
      then # this should have installed a library
         if [ -f ${LIPaS_LIB}/${tomlAA[${key}]//\"}.a ]
-        then
+        then        
+           gen_liblines ${PKG_NAME} "${LIPaS_LIB}/${tomlAA[${key}]//\"}.a" ${tomlAA[${key}]//\"} "${env_DIR}/${env_type}/gen.libs"
            echo ${LIPaS_LIB}/${tomlAA[${key}]//\"}.a > "pkgs-db/${PKG_NAME}.ok"
         else
            status_return=1
