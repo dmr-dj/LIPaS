@@ -56,6 +56,11 @@ msg() {
   echo >&2 -e "${1-}"
 }
 
+msn() {
+  echo >&2 -e "${1-}"
+}
+
+
 vrb() {
   if [ ${verbose} -eq 1 ] 
   then 
@@ -66,6 +71,30 @@ vrb() {
   #~ else
      #pass
   fi	
+}
+
+gui() {
+  #~ if [ ${verbose} -eq 1 ] 
+  #~ then 
+   filler=$( seq -s ' ' 1 100 | tr -dc ' ' )
+   string=" ${1}"
+   msg_lok=$string${filler:${#string}}
+   msg "${ORANGE} + ${msg_lok:0:35} + ${NOFORMAT}"
+  #~ else
+     #pass
+  #~ fi	
+}
+
+iui() {
+  #~ if [ ${verbose} -eq 1 ] 
+  #~ then 
+   filler=$( seq -s ' ' 1 100 | tr -dc ' ' )
+   string=" ${1}"
+   msg_lok=$string${filler:${#string}}
+   msn "${ORANGE} + ${msg_lok:0:35} + ${NOFORMAT}"
+  #~ else
+     #pass
+  #~ fi	
 }
 
 die() {
@@ -272,14 +301,41 @@ do
    fi
 done
 
+vrb "I found ${#conf_to_build[@]} environnement(s)"
+
+if [ ${#conf_to_build[@]} -gt 1 ]
+then
+
+  gui " "
+  #    ==================================
+  gui "Your system is configured with:"
+  gui "... multiple environnements"
+  gui "Which env. should I work with?"
+
+  for (( indx_conf=0; indx_conf<=${#conf_to_build[@]}-1; indx_conf++ ))
+  do
+     conf=${conf_to_build[${indx_conf}]}
+     gui "[${indx_conf}] ${env_to_build[${indx_conf}]}"
+  done
+  (( max_index = ${indx_conf} - 1 ))
+  gui " "
+  iui "Your choice? [0-${max_index}]"
+  read xyzzy 
+  if [[ ! ${xyzzy} =~ ^[0-${max_index}]+$ ]] ; then
+    die "Choice not understood"
+  fi
+fi
+
 # Retreive the compiler /version ...
 
 msg "  ===  Analysing Environnements  ====== "
 
-# [TODO] Drawback this is only for one environnement at this time, hardwired
+die "Temporary stop !!"
 
-for (( indx_conf=0; indx_conf<=${#conf_to_build[@]}-1; indx_conf++ ))
-do
+   # indx_conf is now defined by user above ...
+
+#~ for (( indx_conf=0; indx_conf<=${#conf_to_build[@]}-1; indx_conf++ ))
+#~ do
    conf=${conf_to_build[${indx_conf}]}
       
    FC_line=$(grep "FC" ${conf})
@@ -328,7 +384,7 @@ do
    fi
             
    msg " +  Generating ${env_type} environnement ...   + ${GREEN} [Done] ${NOFORMAT}" 
-done
+#~ done
 
 cd ${MAIN_dir}
 
