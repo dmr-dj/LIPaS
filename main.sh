@@ -303,6 +303,8 @@ done
 
 vrb "I found ${#conf_to_build[@]} environnement(s)"
 
+declare -I CHOSEN_CONF=0
+
 if [ ${#conf_to_build[@]} -gt 1 ]
 then
 
@@ -323,6 +325,8 @@ then
   read xyzzy 
   if [[ ! ${xyzzy} =~ ^[0-${max_index}]+$ ]] ; then
     die "Choice not understood"
+  else
+    CHOSEN_CONF=${xyzzy}
   fi
 fi
 
@@ -330,21 +334,19 @@ fi
 
 msg "  ===  Analysing Environnements  ====== "
 
-die "Temporary stop !!"
+   # CHOSEN_CONF is now defined by user above ...
 
-   # indx_conf is now defined by user above ...
-
-#~ for (( indx_conf=0; indx_conf<=${#conf_to_build[@]}-1; indx_conf++ ))
+#~ for (( CHOSEN_CONF=0; CHOSEN_CONF<=${#conf_to_build[@]}-1; CHOSEN_CONF++ ))
 #~ do
-   conf=${conf_to_build[${indx_conf}]}
+   conf=${conf_to_build[${CHOSEN_CONF}]}
       
    FC_line=$(grep "FC" ${conf})
    declare -x ${FC_line}
    
-   # FC_version=$(${FC} --version | grep -i ${env_to_build[${indx_conf}]} | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
+   # FC_version=$(${FC} --version | grep -i ${env_to_build[${CHOSEN_CONF}]} | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
    FC_version=$(${FC} --version | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
    
-   vrb "${env_to_build[${indx_conf}]} env FC = ${FC_version}"
+   vrb "${env_to_build[${CHOSEN_CONF}]} env FC = ${FC_version}"
 
    source ${MAIN_dir}/${MODULES_D}/test-FC_compiler.sh      
    test_FC_compiler
@@ -375,12 +377,12 @@ die "Temporary stop !!"
    
    # Adding the checking of the env.dict
    
-   if [ -f ${MAIN_dir}/${DICT_DIR}/${env_to_build[${indx_conf}]}.dict ]
+   if [ -f ${MAIN_dir}/${DICT_DIR}/${env_to_build[${CHOSEN_CONF}]}.dict ]
    then
-       vrb "Found dictionnary file for ${env_to_build[${indx_conf}]}"
-       DICT_FOR_ENV="${MAIN_dir}/${DICT_DIR}/${env_to_build[${indx_conf}]}.dict"
+       vrb "Found dictionnary file for ${env_to_build[${CHOSEN_CONF}]}"
+       DICT_FOR_ENV="${MAIN_dir}/${DICT_DIR}/${env_to_build[${CHOSEN_CONF}]}.dict"
    else
-       die "Could not find dictionnary file for ${env_to_build[${indx_conf}]}"
+       die "Could not find dictionnary file for ${env_to_build[${CHOSEN_CONF}]}"
    fi
             
    msg " +  Generating ${env_type} environnement ...   + ${GREEN} [Done] ${NOFORMAT}" 
