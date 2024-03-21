@@ -394,29 +394,24 @@ unset TOML_TABLE_PKG
 
 PKGS_TO_INSTALL="makedepf90"
 
+
+# The function read-toml uses directly the global variable TOML_TABLE_PKG
 declare -A TOML_TABLE_PKG
 
 read-toml pkgs-db/${PKGS_TO_INSTALL}.toml
 
-#~ # To check the hash table content
-#~ for i in "${!TOML_TABLE_PKG[@]}"
-#~ do
- #~ echo "${i} ${TOML_TABLE_PKG[$i]}"
-#~ done
-
-unset tableContent
-declare -A tableContent
+unset AARRAY_TEXIST
+declare -A AARRAY_TEXIST
 
 TODO="pkginfo"
 
-if Texists "${TODO}" in TOML_TABLE_PKG
+if Texists "${TODO}" in "$(declare -p TOML_TABLE_PKG)"
 then
-  PKG_NAME=${tableContent["name"]//\"}
+  PKG_NAME=${AARRAY_TEXIST["name"]//\"}
   vrb "Trying to install ${PKG_NAME}"
 else
   die "Could not find infos over library [unkonwn]"
 fi
-
 
 if [ -f "pkgs-db/${PKG_NAME}.ok" ]
 then
@@ -428,13 +423,13 @@ else
 
   for TODO in ${pkg_work[@]}
   do
-    unset tableContent
-    declare -A tableContent
+    unset AARRAY_TEXIST
+    declare -A AARRAY_TEXIST
 
-    if Texists "${TODO}" in TOML_TABLE_PKG
+    if Texists "${TODO}" in "$(declare -p TOML_TABLE_PKG)"
     then
       source ${MAIN_dir}/${MODULES_D}/"${TODO}"_pkg.sh
-      "${TODO}"_pkg tableContent ${PKG_NAME}
+      "${TODO}"_pkg AARRAY_TEXIST ${PKG_NAME}
       success_pkg=$?
     else
       vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
@@ -467,14 +462,14 @@ read-toml pkgs-db/${PKGS_TO_INSTALL}.toml
  #~ echo "${i} ${TOML_TABLE_PKG[$i]}"
 #~ done
 
-unset tableContent
-declare -A tableContent
+unset AARRAY_TEXIST
+declare -A AARRAY_TEXIST
 
 TODO="pkginfo"
 
-if Texists "${TODO}" in TOML_TABLE_PKG
+if Texists "${TODO}" in "$(declare -p TOML_TABLE_PKG)"
 then
-  PKG_NAME=${tableContent["name"]//\"}
+  PKG_NAME=${AARRAY_TEXIST["name"]//\"}
   vrb "Trying to install ${PKG_NAME}"
 else
   die "Could not find infos over library [unkonwn]"
@@ -490,13 +485,13 @@ else
 
   for TODO in ${pkg_work[@]}
   do
-    declare -A tableContent
+    declare -A AARRAY_TEXIST
     
     if Texists "${TODO}" in TOML_TABLE_PKG
     then
 
       source ${MAIN_dir}/${MODULES_D}/"${TODO}"_pkg.sh
-      "${TODO}"_pkg tableContent ${PKG_NAME}
+      "${TODO}"_pkg AARRAY_TEXIST ${PKG_NAME}
       success_pkg=$?
     else
       vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
@@ -509,7 +504,7 @@ else
       vrb "${TODO}     lib ${PKG_NAME} [OK]" 
     fi
     
-    unset tableContent    
+    unset AARRAY_TEXIST    
   done
 fi
 

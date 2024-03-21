@@ -71,7 +71,8 @@ function get_tomlVarsInTables () {
 	
 }
 
-function read-toml () {
+function read-toml () { # this function fills the global variable TOML_TABLE_PKG 
+	
    # Provided with a toml file name, read and feedback the necessary components
    
    local tomlFile=${1}
@@ -87,12 +88,12 @@ function read-toml () {
    declare -A tomlVarsInTable
    get_tomlVarsInTables ${tomlFile}
 
-# Copy back the result to the main global variable
-   for k in "${!tomlVarsInTable[@]}"; do tomlFileContent[$k]=${tomlVarsInTable[$k]}; done   
+# Copy back the result to the main global variable, TOML_TABLE_PKG
+   for k in "${!tomlVarsInTable[@]}"; do TOML_TABLE_PKG[$k]=${tomlVarsInTable[$k]}; done   
 
    unset tomlTableNames
    unset tomlTableIndex
-   unset tomlVarsInTable 		
+   unset tomlVarsInTable
 }
 # reworked from https://stackoverflow.com/questions/13219634/easiest-way-to-check-for-an-index-or-a-key-in-an-array
 # with partial match as well and return the values of the associated table
@@ -101,7 +102,11 @@ function Texists () {
 	local lookupKey
 	lookupKey=${1}
 	
-	local -n aArray=${3}
+	#~ local -n aArray=${3}
+    eval "declare -A aArray="${3#*=}
+
+	echo "In read-toml"
+	declare -p aArray
 	
 	for key in "${!aArray[@]}"
 	do
@@ -111,14 +116,16 @@ function Texists () {
 	      toStrip="[${lookupKey}]."
 	      stripedKey=${key##"${toStrip}"}
 
-	      tableContent[${stripedKey}]=${aArray[${key}]}
+	      AARRAY_TEXIST[${stripedKey}]=${aArray[${key}]}
 	    fi
 	done
-	if [ ${#tableContent[@]} -gt 0 ]
+	if [ ${#AARRAY_TEXIST[@]} -gt 0 ]
 	then
 	   return 0
 	else
 	   return 1
 	fi
+	
+	unset aArray
 }
 # The End of All Things (op. cit.)
