@@ -166,7 +166,7 @@ function build_pkg () { # (TOML_AA_array, PKG_NAME)
 	# from https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
     eval "declare -A tomlAA="${1#*=}
 
-    declare -p tomlAA
+    # declare -p tomlAA
 
    local name_pkg=${2}
 
