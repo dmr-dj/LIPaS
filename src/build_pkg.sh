@@ -15,6 +15,11 @@
 # limitations under the License.
 
 
+
+# This script uses Associative Arrays introduced in bash v4
+# [TODO] check that indeed we are running with bash >= 4
+
+
 function build_pkg_cc () {
 	
   local method=${1//\"/}
@@ -40,7 +45,8 @@ function build_pkg_cc () {
 
 function build_pkg_ff () {
 	
-  local -n tomlinput=${1}	
+  local -n tomlinput=${1}	# <- this method uses bash >= v5 method not really portable at this moment
+
   local method=${2//\"/}
     
    #~ # To check the hash table content
@@ -148,7 +154,7 @@ function build_pkg_ff () {
 }
 
 
-function build_pkg () {
+function build_pkg () { # (TOML_AA_array, PKG_NAME)
 	
    # Expectation is to pass the toml associative array
    #  we access it here as in https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash

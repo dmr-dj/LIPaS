@@ -74,27 +74,17 @@ vrb() {
 }
 
 gui() {
-  #~ if [ ${verbose} -eq 1 ] 
-  #~ then 
    filler=$( seq -s ' ' 1 100 | tr -dc ' ' )
    string=" ${1}"
    msg_lok=$string${filler:${#string}}
    msg "${ORANGE} + ${msg_lok:0:35} + ${NOFORMAT}"
-  #~ else
-     #pass
-  #~ fi	
 }
 
 iui() {
-  #~ if [ ${verbose} -eq 1 ] 
-  #~ then 
    filler=$( seq -s ' ' 1 100 | tr -dc ' ' )
    string=" ${1}"
    msg_lok=$string${filler:${#string}}
    msn "${ORANGE} + ${msg_lok:0:35} + ${NOFORMAT}"
-  #~ else
-     #pass
-  #~ fi	
 }
 
 die() {
@@ -316,7 +306,6 @@ then
 
   for (( indx_conf=0; indx_conf<=${#conf_to_build[@]}-1; indx_conf++ ))
   do
-     conf=${conf_to_build[${indx_conf}]}
      gui "[${indx_conf}] ${env_to_build[${indx_conf}]}"
   done
   (( max_index = ${indx_conf} - 1 ))
@@ -334,16 +323,11 @@ fi
 
 msg "  ===  Analysing Environnements  ====== "
 
-# CHOSEN_CONF is now defined by user above ...
-
-#~ for (( CHOSEN_CONF=0; CHOSEN_CONF<=${#conf_to_build[@]}-1; CHOSEN_CONF++ ))
-#~ do
    conf=${conf_to_build[${CHOSEN_CONF}]}
       
    FC_line=$(grep "FC" ${conf})
    declare -x ${FC_line}
    
-   # FC_version=$(${FC} --version | grep -i ${env_to_build[${CHOSEN_CONF}]} | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
    FC_version=$(${FC} --version | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
    
    vrb "${env_to_build[${CHOSEN_CONF}]} env FC = ${FC_version}"
@@ -359,15 +343,15 @@ msg "  ===  Analysing Environnements  ====== "
       
    cd ${MAIN_dir}
    
-   if [ -d ${env_DIR}/${env_type} ]
+   if [ -d ${env_DIR}/${env_to_build[${CHOSEN_CONF}]} ]
    then
      # Delete, we are renewing the configuration
-     rm -fR ${env_DIR}/${env_type}
+     rm -fR ${env_DIR}/${env_to_build[${CHOSEN_CONF}]}
    fi
   
-   mkdir -p ${env_DIR}/${env_type}
+   mkdir -p ${env_DIR}/${env_to_build[${CHOSEN_CONF}]}
       
-   cd ${env_DIR}/${env_type}
+   cd ${env_DIR}/${env_to_build[${CHOSEN_CONF}]}
     
    vrb "Generating .pkg" 
    echo "FC = ${FC}" >> gen.pkg
@@ -385,7 +369,7 @@ msg "  ===  Analysing Environnements  ====== "
        die "Could not find dictionnary file for ${env_to_build[${CHOSEN_CONF}]}"
    fi
             
-   msg " +  Generating ${env_type} environnement ...   + ${GREEN} [Done] ${NOFORMAT}" 
+   msg " +  Generating ${env_to_build[${CHOSEN_CONF}]} environnement ...   + ${GREEN} [Done] ${NOFORMAT}" 
 #~ done
 
 cd ${MAIN_dir}
@@ -406,18 +390,18 @@ source ${MAIN_dir}/${MODULES_D}/read-toml.sh
 
 # PKGS_TO_INSTALL ... should be in a loop at some point!
 
-unset tomlFileContent
+unset TOML_TABLE_PKG
 
 PKGS_TO_INSTALL="makedepf90"
 
-declare -A tomlFileContent
+declare -A TOML_TABLE_PKG
 
 read-toml pkgs-db/${PKGS_TO_INSTALL}.toml
 
 #~ # To check the hash table content
-#~ for i in "${!tomlFileContent[@]}"
+#~ for i in "${!TOML_TABLE_PKG[@]}"
 #~ do
- #~ echo "${i} ${tomlFileContent[$i]}"
+ #~ echo "${i} ${TOML_TABLE_PKG[$i]}"
 #~ done
 
 unset tableContent
@@ -425,7 +409,7 @@ declare -A tableContent
 
 TODO="pkginfo"
 
-if Texists "${TODO}" in tomlFileContent
+if Texists "${TODO}" in TOML_TABLE_PKG
 then
   PKG_NAME=${tableContent["name"]//\"}
   vrb "Trying to install ${PKG_NAME}"
@@ -447,7 +431,7 @@ else
     unset tableContent
     declare -A tableContent
 
-    if Texists "${TODO}" in tomlFileContent
+    if Texists "${TODO}" in TOML_TABLE_PKG
     then
       source ${MAIN_dir}/${MODULES_D}/"${TODO}"_pkg.sh
       "${TODO}"_pkg tableContent ${PKG_NAME}
@@ -469,18 +453,18 @@ msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}"
 
 # PKGS_TO_INSTALL ... should be in a loop at some point!
 
-unset tomlFileContent
+unset TOML_TABLE_PKG
 
 PKGS_TO_INSTALL="dinsol"
 
-declare -A tomlFileContent
+declare -A TOML_TABLE_PKG
 
 read-toml pkgs-db/${PKGS_TO_INSTALL}.toml
 
 #~ # To check the hash table content
-#~ for i in "${!tomlFileContent[@]}"
+#~ for i in "${!TOML_TABLE_PKG[@]}"
 #~ do
- #~ echo "${i} ${tomlFileContent[$i]}"
+ #~ echo "${i} ${TOML_TABLE_PKG[$i]}"
 #~ done
 
 unset tableContent
@@ -488,7 +472,7 @@ declare -A tableContent
 
 TODO="pkginfo"
 
-if Texists "${TODO}" in tomlFileContent
+if Texists "${TODO}" in TOML_TABLE_PKG
 then
   PKG_NAME=${tableContent["name"]//\"}
   vrb "Trying to install ${PKG_NAME}"
@@ -508,7 +492,7 @@ else
   do
     declare -A tableContent
     
-    if Texists "${TODO}" in tomlFileContent
+    if Texists "${TODO}" in TOML_TABLE_PKG
     then
 
       source ${MAIN_dir}/${MODULES_D}/"${TODO}"_pkg.sh
