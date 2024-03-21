@@ -388,11 +388,17 @@ cd ${MAIN_dir}
 
 source ${MAIN_dir}/${MODULES_D}/read-toml.sh
 
+
+declare -a LIST_PKGS_TO_INSTALL=("makedepf90" "dinsol")
+
+for PKGS_TO_INSTALL in ${LIST_PKGS_TO_INSTALL[@]}
+do
+
 # PKGS_TO_INSTALL ... should be in a loop at some point!
 
 unset TOML_TABLE_PKG
 
-PKGS_TO_INSTALL="makedepf90"
+#~ PKGS_TO_INSTALL="makedepf90"
 
 
 # The function read-toml uses directly the global variable TOML_TABLE_PKG
@@ -404,6 +410,11 @@ unset AARRAY_TEXIST
 declare -A AARRAY_TEXIST
 
 TODO="pkginfo"
+
+# The function Texists uses directly the global variable AARRAY_TEXIST
+
+# Technique proposed by Florian Feldhaus 
+# from https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
 
 if Texists "${TODO}" in "$(declare -p TOML_TABLE_PKG)"
 then
@@ -429,7 +440,7 @@ else
     if Texists "${TODO}" in "$(declare -p TOML_TABLE_PKG)"
     then
       source ${MAIN_dir}/${MODULES_D}/"${TODO}"_pkg.sh
-      "${TODO}"_pkg AARRAY_TEXIST ${PKG_NAME}
+      "${TODO}"_pkg "$(declare -p AARRAY_TEXIST)" ${PKG_NAME}
       success_pkg=$?
     else
       vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
@@ -446,71 +457,76 @@ fi
 
 msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}" 
 
-# PKGS_TO_INSTALL ... should be in a loop at some point!
 
-unset TOML_TABLE_PKG
+done # Loop on the list of pkg to install
 
-PKGS_TO_INSTALL="dinsol"
 
-declare -A TOML_TABLE_PKG
 
-read-toml pkgs-db/${PKGS_TO_INSTALL}.toml
+#~ # PKGS_TO_INSTALL ... should be in a loop at some point!
 
-#~ # To check the hash table content
+#~ unset TOML_TABLE_PKG
+
+#~ PKGS_TO_INSTALL="dinsol"
+
+#~ declare -A TOML_TABLE_PKG
+
+#~ read-toml pkgs-db/${PKGS_TO_INSTALL}.toml
+
+# To check the hash table content
 #~ for i in "${!TOML_TABLE_PKG[@]}"
 #~ do
  #~ echo "${i} ${TOML_TABLE_PKG[$i]}"
 #~ done
 
-unset AARRAY_TEXIST
-declare -A AARRAY_TEXIST
+#~ unset AARRAY_TEXIST/
+#~ declare -A AARRAY_TEXIST
 
-TODO="pkginfo"
+#~ TODO="pkginfo"
 
-if Texists "${TODO}" in "$(declare -p TOML_TABLE_PKG)"
-then
-  PKG_NAME=${AARRAY_TEXIST["name"]//\"}
-  vrb "Trying to install ${PKG_NAME}"
-else
-  die "Could not find infos over library [unkonwn]"
-fi
+#~ if Texists "${TODO}" in "$(declare -p TOML_TABLE_PKG)"
+#~ then
+  #~ PKG_NAME=${AARRAY_TEXIST["name"]//\"}
+  #~ vrb "Trying to install ${PKG_NAME}"
+#~ else
+  #~ die "Could not find infos over library [unkonwn]"
+#~ fi
 
-if [ -f "pkgs-db/${PKG_NAME}.ok" ]
-then
+#~ if [ -f "pkgs-db/${PKG_NAME}.ok" ]
+#~ then
 
-  vrb "${PKG_NAME} is already installed"
+  #~ vrb "${PKG_NAME} is already installed"
 
-else
-  declare -a pkg_work=(retrieve build installtst)
+#~ else
+  #~ declare -a pkg_work=(retrieve build installtst)
 
-  for TODO in ${pkg_work[@]}
-  do
-    declare -A AARRAY_TEXIST
+  #~ for TODO in ${pkg_work[@]}
+  #~ do
+    #~ declare -A AARRAY_TEXIST
     
-    if Texists "${TODO}" in TOML_TABLE_PKG
-    then
+    #~ if Texists "${TODO}" in TOML_TABLE_PKG
+    #~ then
 
-      source ${MAIN_dir}/${MODULES_D}/"${TODO}"_pkg.sh
-      "${TODO}"_pkg AARRAY_TEXIST ${PKG_NAME}
-      success_pkg=$?
-    else
-      vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
-    fi
+      #~ source ${MAIN_dir}/${MODULES_D}/"${TODO}"_pkg.sh
+      #~ "${TODO}"_pkg AARRAY_TEXIST ${PKG_NAME}
+      #~ success_pkg=$?
+    #~ else
+      #~ vrb "Could not find a method to ${TODO} lib ${PKG_NAME}"
+    #~ fi
 
-    if [ ! ${success_pkg} -eq 0 ]
-    then
-      die "${TODO} ${PKG_NAME} failed"
-    else
-      vrb "${TODO}     lib ${PKG_NAME} [OK]" 
-    fi
+    #~ if [ ! ${success_pkg} -eq 0 ]
+    #~ then
+      #~ die "${TODO} ${PKG_NAME} failed"
+    #~ else
+      #~ vrb "${TODO}     lib ${PKG_NAME} [OK]" 
+    #~ fi
     
-    unset AARRAY_TEXIST    
-  done
-fi
+    #~ unset AARRAY_TEXIST    
+  #~ done
+#~ fi
 
-msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}" 
+#~ msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}" 
 
 
-rm -fR ${tempDIR}
+#~ rm -fR ${tempDIR}
 
 # The End of All Things (op. cit.)

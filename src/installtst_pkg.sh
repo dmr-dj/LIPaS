@@ -21,7 +21,18 @@ function installtst_pkg () {
 	
    # Expectation is to pass the toml associative array
    #  we access it here as in https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
-   local -n tomlAA=${1}
+   #~ local -n tomlAA=${1}
+
+   # Updated to avoid compatibility issues
+   
+   	# Technique proposed by Florian Feldhaus 
+	# from https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
+    eval "declare -A tomlAA="${1#*=}
+
+   #~ declare -p tomlAA
+
+
+
    local name_pkg=${2}
     
    status_return=0 
@@ -47,7 +58,7 @@ function installtst_pkg () {
      then # this should have installed a library
         if [ -f ${LIPaS_LIB}/${tomlAA[${key}]//\"}.a ]
         then        
-           gen_liblines ${PKG_NAME} "${LIPaS_LIB}/${tomlAA[${key}]//\"}.a" ${tomlAA[${key}]//\"} "${env_DIR}/${env_type}/gen.libs"
+           gen_liblines ${PKG_NAME} "${LIPaS_LIB}/${tomlAA[${key}]//\"}.a" ${tomlAA[${key}]//\"} "${env_DIR}/${env_to_build[${CHOSEN_CONF}]}/gen.libs"
            echo ${LIPaS_LIB}/${tomlAA[${key}]//\"}.a > "pkgs-db/${PKG_NAME}.ok"
         else
            status_return=1
@@ -55,7 +66,7 @@ function installtst_pkg () {
      fi
      return ${status_return}
    done
-   
+   unset tomlAA
 }
 
 # The End of All Things (op. cit.)

@@ -95,18 +95,24 @@ function read-toml () { # this function fills the global variable TOML_TABLE_PKG
    unset tomlTableIndex
    unset tomlVarsInTable
 }
+
 # reworked from https://stackoverflow.com/questions/13219634/easiest-way-to-check-for-an-index-or-a-key-in-an-array
 # with partial match as well and return the values of the associated table
+# This modifies the global variable AARRAY_TEXIST
+
 function Texists () {
 	# Expects 1 : a key 2 : "in" and 3 an Associative Array
 	local lookupKey
 	lookupKey=${1}
 	
 	#~ local -n aArray=${3}
+	
+	# Technique proposed by Florian Feldhaus 
+	# from https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
     eval "declare -A aArray="${3#*=}
 
-	echo "In read-toml"
-	declare -p aArray
+	#~ echo "In read-toml"
+	#~ declare -p aArray
 	
 	for key in "${!aArray[@]}"
 	do

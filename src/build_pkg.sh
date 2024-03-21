@@ -158,7 +158,16 @@ function build_pkg () { # (TOML_AA_array, PKG_NAME)
 	
    # Expectation is to pass the toml associative array
    #  we access it here as in https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
-   local -n tomlAA=${1}
+   #~ local -n tomlAA=${1}
+
+   # Updated to avoid compatibility issues
+   
+   	# Technique proposed by Florian Feldhaus 
+	# from https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
+    eval "declare -A tomlAA="${1#*=}
+
+    declare -p tomlAA
+
    local name_pkg=${2}
 
    case ${tomlAA["lang"]//\"} in
@@ -174,6 +183,9 @@ function build_pkg () { # (TOML_AA_array, PKG_NAME)
      die "Unhandled programming language"
      ;;
    esac
+   
+   unset tomlAA
+   
    return $?
 
 }
