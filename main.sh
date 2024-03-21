@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.3.3"
+script_version="0.3.4"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
