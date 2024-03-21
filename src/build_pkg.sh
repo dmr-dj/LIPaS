@@ -45,7 +45,12 @@ function build_pkg_cc () {
 
 function build_pkg_ff () {
 	
-  local -n tomlinput=${1}	# <- this method uses bash >= v5 method not really portable at this moment
+  # local -n tomlinput=${1}	# <- this method uses bash >= v5 method not really portable at this moment
+
+  # Technique proposed by Florian Feldhaus 
+  # from https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
+  eval "declare -A tomlinput="${1#*=}
+
 
   local method=${2//\"/}
     
@@ -177,7 +182,7 @@ function build_pkg () { # (TOML_AA_array, PKG_NAME)
         return $?
      ;;
      FF)
-        build_pkg_ff tomlAA ${tomlAA["method"]}     
+        build_pkg_ff "$(declare -p tomlAA)" ${tomlAA["method"]}     
      ;;
      *)
      die "Unhandled programming language"
