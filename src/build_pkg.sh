@@ -30,8 +30,13 @@ function build_pkg_cc () {
      # Go to package location
      hereiam=$(pwd)
      cd ${MAIN_dir}/${tempDIR}/${name_pkg}
+     if [ -f Makefile ]
+     then
+       rm -f Makefile
+     fi
      ./configure --prefix=${LIPaS_ROOT} 2>&1 > /dev/null
      make 2>&1 > /dev/null
+     ./configure --prefix=${LIPaS_ROOT} 2>&1 > /dev/null
      make install 2>&1 > /dev/null
      success_or_not=$?
      cd ${hereiam}

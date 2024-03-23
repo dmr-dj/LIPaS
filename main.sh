@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.3.4"
+script_version="0.3.6"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -234,9 +234,9 @@ then
        if [ "${nb_lines_conf}" -ge "${confNbLinesFile}" ]
        then
           LIST_CONF_FILES+=("${fich}")
-       fi    
+       fi
     done
-    
+
     nb_valid_conf=${#LIST_CONF_FILES[@]}
     vrb "Found ${nb_valid_conf} valid file(s) in conf DIR"
 
@@ -279,11 +279,17 @@ conf_to_build=()
 for file in "${LIST_CONF_FILES[@]}"
 do
    env_type=$(basename ${file} | cut -d. -f 2) # second part of config file name is type of env, e.g. conf.gnu
-   
-   if [[ ${env_to_build[@]} =~ ${env_type} ]]
+   if [ ${#env_to_build[@]} -gt 0 ]
    then
-      vrb "Env. ${env_type} has a double conf file"
-      vrb "   ... using first one found ..."
+     if [[ ${env_to_build[@]} =~ ${env_type} ]]
+     then
+        vrb "Env. ${env_type} has a double conf file"
+        vrb "   ... using first one found ..."
+     else
+        vrb "Conf file for env. ${env_type} found"
+        env_to_build+=("${env_type}")
+        conf_to_build+=("${file}")
+     fi
    else
       vrb "Conf file for env. ${env_type} found"
       env_to_build+=("${env_type}")

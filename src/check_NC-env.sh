@@ -60,8 +60,9 @@ function check_NC-env(){
    INCNETCDFF="-I${NC_F_INC}"
    LIBNETCDFC="-Wl,-rpath=${NC_C_LIB} -L${NC_C_LIB} -lnetcdf"
    INCNETCDFC="-I${NC_C_INC}"
-   
+
    LIBNETCDF="${LIBNETCDFC} ${LIBNETCDFF}"
-   INCNETCDF="${INCNETCDFC} ${INCNETCDFF}"
+   INCNETCDF="${INCNETCDFF} ${INCNETCDFF}"
+
 } # check_NC-env
 # The End of All Things (op. cit.)

@@ -56,7 +56,7 @@ function get_tomlVarsInTables () {
         END=$(wc -l ${tomlFile}| cut --delimiter=" " -f 1)
       fi
       # Extract the lines using the head and tail commands
-      
+
       readarray -t varsRead < <( head -n $(( ${END}-1 )) "${tomlFile}" | tail -n $(( ${END} - ${START} )) | grep "=")
 
       #~ vrb "Table: ${tomlTableNames[i-1]}  ${#varsRead[@]}"  
@@ -64,27 +64,26 @@ function get_tomlVarsInTables () {
       do
          key=$(echo ${varsRead[j]} | cut --delimiter== -f1)
          value=$(echo ${varsRead[j]} | cut --delimiter== -f2)
-         
-         tomlVarsInTable["${tomlTableNames[i-1]}.${key}"]="${value}"
+         tomlVarsInTable["${tomlTableNames[i-1]:1:-1}.${key}"]="${value}"
       done
    done
-	
+
 }
 
 function read-toml () { # this function fills the global variable TOML_TABLE_PKG 
-	
+
    # Provided with a toml file name, read and feedback the necessary components
-   
+
    local tomlFile=${1}
    local tomlFilebase=$(basename ${tomlFile})
-   
+
    vrb "Reading file ${tomlFilebase}"
-   
+
    declare -a tomlTableNames
    declare -a tomlTableIndex   
    get_tomlTableNms ${tomlFile}
-   
-   
+
+
    declare -A tomlVarsInTable
    get_tomlVarsInTables ${tomlFile}
 
@@ -109,7 +108,7 @@ function Texists () {
 	
 	# Technique proposed by Florian Feldhaus 
 	# from https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
-    eval "declare -A aArray="${3#*=}
+        eval "declare -A aArray="${3#*=}
 
 	#~ echo "In read-toml"
 	#~ declare -p aArray
@@ -118,8 +117,7 @@ function Texists () {
 	do
 	    if [[ "${key}" =~ .*"${lookupKey}"*. ]]
 	    then
-	      #~ echo "${lookupKey} exists in Table"
-	      toStrip="[${lookupKey}]."
+	      toStrip="${lookupKey}."
 	      stripedKey=${key##"${toStrip}"}
 
 	      AARRAY_TEXIST[${stripedKey}]=${aArray[${key}]}
