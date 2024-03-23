@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.3.6"
+script_version="0.3.7"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -221,12 +221,35 @@ mkdir -p ${LIPaS_LIB}
 
 vrb "=======   LOCATING CONFIGS   ======="
 
-if [ -d ${MAIN_dir}/${configsDIR}/${ComputerName} ]
+
+# Configs are dirs that are matching partially or completely the HOSTNAME variable
+CONF_DIR=""
+
+if [ -d ${MAIN_dir}/${configsDIR}/${ComputerName} ] 
 then
 
     vrb "Detected a configuration DIR"
-
     CONF_DIR="${MAIN_dir}/${configsDIR}/${ComputerName}"
+
+else
+
+   for dir in $(ls -d ${MAIN_dir}/${configsDIR}/*)
+   do
+     if [[ "${ComputerName}" =~ .*"$(basename ${dir})".* ]]
+     then
+
+       vrb "Detected a configuration DIR"
+       CONF_DIR="${dir}"
+
+     fi
+
+   done
+
+fi
+
+if [ -d ${CONF_DIR} ]
+then
+
     LIST_CONF_FILES=()
     for fich in $(ls ${CONF_DIR}/${confFile}*)
     do
