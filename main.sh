@@ -190,6 +190,19 @@ function show_progress {
 }
 
 
+check_dir_and_mkdir(){
+
+  if [ -d ${1} ]
+  then
+     vrb "${1} exists!"
+  else
+    # Soft creating the ROOT sub_directories if they do not exist
+    mkdir -p ${1}
+  fi
+	
+}
+
+
 setup_colors
 parse_params "$@"
 
@@ -215,14 +228,33 @@ LIPaS_BIN="${LIPaS_ROOT}/bin"
 LIPaS_INC="${LIPaS_ROOT}/inc"
 LIPaS_LIB="${LIPaS_ROOT}/lib"
 
-# Creating the ROOT sub_directories if they do not exist
 
-mkdir -p ${LIPaS_BIN}
-mkdir -p ${LIPaS_INC}
-mkdir -p ${LIPaS_LIB}
+# Looking up whether a previous install exists
 
-# Creating environnement directory
-mkdir -p ${ENV_DIR}
+check_dir_and_mkdir "${LIPaS_BIN}"
+check_dir_and_mkdir "${LIPaS_INC}"
+check_dir_and_mkdir "${LIPaS_LIB}"
+
+
+# Check whether an environnement already exists
+
+if [ -d ${ENV_DIR} ]
+then
+  
+  readarray -t EXISTING_DIRS < <(find ${ENV_DIR}/. -maxdepth 1 -type d -printf '%P\n')
+  for conf in ${EXISTING_DIRS[@]}
+  do
+     vrb "Found existing env. for ${conf}"
+  done
+  die "Found DIRS"
+
+else
+
+  # Creating environnement directory 
+  mkdir -p ${ENV_DIR}
+
+fi
+
 
 vrb "=======   LOCATING CONFIGS   ======="
 
@@ -274,27 +306,7 @@ else
     vrb "  in current version of ${prog_name}" 
 
     die "  Execution of ${prog_name} failed   "
-    #~ for fich in `ls ${nom_fich_config}*`
-    #~ do
-	#~ nom_gen=${fich##${nom_fich_config}}
-	#~ nom_gen_mach=`echo ${nommachine} | sed "s%[0-9]*%%g"`
-	#~ resul_enlev=${nom_gen##${nom_gen_mach}}
-	#~ otreoption=`echo ${nommachine} | sed "s%[0-9]*%%g" | sed "s%${nom_gen}%TOTO%g" | grep TOTO`
-	#~ if [ "${nom_gen##${nom_gen_mach}}" = "" ]
-	#~ then
-	    #~ echo "Retreiving  environement variables for ${nom_gen} "
-	    #~ fichconfig="${fich}"
-	#~ elif [ ! "${otreoption}" = "" ]
-	#~ then
-	    #~ echo "Retreiving  environement variables for ${nom_gen} "
-	    #~ fichconfig="${fich}"
-        #~ elif [ ! "${nommachine##${nom_gen}}" = ${nommachine} ]
-        #~ then
-	    #~ echo "Retreiving  environement variables for ${nom_gen} "
-	    #~ fichconfig="${fich}"
-        #~ fi
-    #~ done
-
+    
 fi
 
 vrb "=======  DEFINING COMPILERS  ======="
