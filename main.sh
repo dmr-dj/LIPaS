@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.3.7"
+script_version="0.3.8"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -209,33 +209,37 @@ msg "       ${LIPaS_ROOT} "
 
 msg ""
 
-# Creating the ROOT sub_directories
+# Setting the ROOT sub_directories
 
 LIPaS_BIN="${LIPaS_ROOT}/bin"
 LIPaS_INC="${LIPaS_ROOT}/inc"
 LIPaS_LIB="${LIPaS_ROOT}/lib"
 
+# Creating the ROOT sub_directories if they do not exist
+
 mkdir -p ${LIPaS_BIN}
 mkdir -p ${LIPaS_INC}
 mkdir -p ${LIPaS_LIB}
 
+# Creating environnement directory
+mkdir -p ${ENV_DIR}
+
 vrb "=======   LOCATING CONFIGS   ======="
 
-
-# Configs are dirs that are matching partially or completely the HOSTNAME variable
+# Configs are dirs that are matching partially or completely the HOSTNAME variable in CONFIGS_DIR variable in LIPaS.param
 CONF_DIR=""
 
-if [ -d ${MAIN_dir}/${configsDIR}/${ComputerName} ] 
+if [ -d ${MAIN_dir}/${CONFIGS_DIR}/${COMPUTER_NAME} ] 
 then
 
     vrb "Detected a configuration DIR"
-    CONF_DIR="${MAIN_dir}/${configsDIR}/${ComputerName}"
+    CONF_DIR="${MAIN_dir}/${CONFIGS_DIR}/${COMPUTER_NAME}"
 
 else
 
-   for dir in $(ls -d ${MAIN_dir}/${configsDIR}/*)
+   for dir in $(ls -d ${MAIN_dir}/${CONFIGS_DIR}/*)
    do
-     if [[ "${ComputerName}" =~ .*"$(basename ${dir})".* ]]
+     if [[ "${COMPUTER_NAME}" =~ .*"$(basename ${dir})".* ]]
      then
 
        vrb "Detected a configuration DIR"
@@ -372,18 +376,18 @@ msg "  ===  Analysing Environnements  ====== "
       
    cd ${MAIN_dir}
    
-   if [ -d ${env_DIR}/${env_to_build[${CHOSEN_CONF}]} ]
+   if [ -d ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]} ]
    then
      # Delete, we are renewing the configuration
-     rm -fR ${env_DIR}/${env_to_build[${CHOSEN_CONF}]}
+     rm -fR ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
    fi
   
-   mkdir -p ${env_DIR}/${env_to_build[${CHOSEN_CONF}]}
+   mkdir -p ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
       
-   cd ${env_DIR}/${env_to_build[${CHOSEN_CONF}]}
+   cd ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
     
    vrb "Generating .pkg" 
-   echo "FC = ${FC}" >> gen.pkg
+   echo "FC = ${FC}" >> gen.env
    vrb "Generating .libs"
    echo "INCNETCDF = ${INCNETCDF}" >> gen.libs
    echo "LIBNETCDF = ${LIBNETCDF}" >> gen.libs

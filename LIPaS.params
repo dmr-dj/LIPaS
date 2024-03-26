@@ -10,12 +10,12 @@ MODULES_D="src"
 DICT_DIR="dicts"
 
 # == Standard location to read config files ==
-configsDIR="configs"
+CONFIGS_DIR="configs"
 
 # == Methodology to find the pre-defined config files ==
 
 # (1) Work on computer name
-ComputerName=${HOSTNAME}
+COMPUTER_NAME=${HOSTNAME}
 # (2) Files are "conf.${HOSTNAME}"
 confFile="conf."
 # (3) A proper configuration needs at least 6 lines
@@ -25,9 +25,9 @@ confNbLinesFile="6"
 tempDIR="tmp-$(hexdump -n 8 -v -e '/1 "%02X"' /dev/urandom)"
 mkdir ${tempDIR}
 # tempDIR="tmp-7A70845E46A28B02"
+
 # == Standard location for the environnements files generated (one by compiler env)
-env_DIR="envs"
-mkdir -p ${env_DIR}
+ENV_DIR="envs"
 
 # == Standard location for the program files used to test the environnement pre-defined ==
 
