@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.3.9.1"
+script_version="0.3.9.2"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -261,8 +261,8 @@ then
      vrb "Found existing env. for ${conf}"
      if [[ "${DELETE_ENV}" =~ "${conf}" ]]
      then
-       msg "You are about to delete the env. ${conf}"
-       die "Delete env not implemented yet"
+       rm -fR ${ENV_DIR}/${conf}
+       die "${conf} environnement deleted"
      fi     
   done
 else
@@ -331,6 +331,9 @@ vrb "=======  DEFINING COMPILERS  ======="
 
 env_to_build=()
 conf_to_build=()
+
+# Creating the temporary work directory
+mkdir ${tempDIR}
 
 for file in "${LIST_CONF_FILES[@]}"
 do
@@ -408,19 +411,25 @@ msg "  ===  Analysing Environnements  ====== "
    if [ -d ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]} ]
    then
      # Delete, we are renewing the configuration
-     rm -fR ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
+     # rm -fR ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
+     iui "Not deleting the current config."
+     iui "You can specifically do that ..."
+     iui " ... with the -D option "
+     
+   else  
+     
+     mkdir -p ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
+      
+     cd ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
+    
+     vrb "Generating .pkg" 
+     echo "FC = ${FC}" >> gen.env
+     vrb "Generating .libs"
+     echo "INCNETCDF = ${INCNETCDF}" >> gen.libs
+     echo "LIBNETCDF = ${LIBNETCDF}" >> gen.libs
+     
    fi
   
-   mkdir -p ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
-      
-   cd ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
-    
-   vrb "Generating .pkg" 
-   echo "FC = ${FC}" >> gen.env
-   vrb "Generating .libs"
-   echo "INCNETCDF = ${INCNETCDF}" >> gen.libs
-   echo "LIBNETCDF = ${LIBNETCDF}" >> gen.libs
-   
    # Adding the checking of the env.dict
    
    if [ -f ${MAIN_dir}/${DICT_DIR}/${env_to_build[${CHOSEN_CONF}]}.dict ]
@@ -432,7 +441,8 @@ msg "  ===  Analysing Environnements  ====== "
    fi
             
    msg " +  Generating ${env_to_build[${CHOSEN_CONF}]} environnement ...   + ${GREEN} [Done] ${NOFORMAT}" 
-#~ done
+   
+   #~ done
 
 cd ${MAIN_dir}
 
@@ -459,9 +469,6 @@ do
 # PKGS_TO_INSTALL ... should be in a loop at some point!
 
 unset TOML_TABLE_PKG
-
-#~ PKGS_TO_INSTALL="makedepf90"
-
 
 # The function read-toml uses directly the global variable TOML_TABLE_PKG
 declare -A TOML_TABLE_PKG
