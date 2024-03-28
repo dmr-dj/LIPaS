@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.3.9.2"
+script_version="0.3.9.3"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -136,8 +136,8 @@ display_version() {
 parse_params() {
 	
   # Define the possible options
-  local SHORT=h,v,D:
-  local LONG=help,verbose,DeleteEnv:,no-color,version
+  local SHORT=h,v,D:,p:
+  local LONG=help,verbose,DeleteEnv:,no-color,version,--pkg-inst:
   local OPTS=$(getopt -n LIPaS --options $SHORT --longoptions $LONG -- "$@")
   local VALID_ARGUMENTS=${#} # Returns the count of arguments that are in short or long options
 
@@ -148,6 +148,10 @@ parse_params() {
     -v | --verbose) verbose=1 ;;
     -D | --DeleteEnv) 
       DELETE_ENV=${2}
+      shift
+    ;;
+    -p | --pkg-inst)
+      PKG_TO_INSTALL=${2}
       shift
     ;;
     --no-color) NO_COLOR=1 ;;
@@ -410,8 +414,7 @@ msg "  ===  Analysing Environnements  ====== "
    
    if [ -d ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]} ]
    then
-     # Delete, we are renewing the configuration
-     # rm -fR ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
+
      iui "Not deleting the current config."
      iui "You can specifically do that ..."
      iui " ... with the -D option "
@@ -460,8 +463,17 @@ cd ${MAIN_dir}
 
 source ${MAIN_dir}/${MODULES_D}/read-toml.sh
 
+# This package HAS to be installed. LIPaS depends on it
+declare -a LIST_PKGS_TO_INSTALL=("makedepf90")
 
-declare -a LIST_PKGS_TO_INSTALL=("makedepf90" "dinsol")
+
+# So far this will work, but problem when looking at dependencies potentially
+# We need an ORDERED list of packages to be installed ...
+
+if [ -v PKG_TO_INSTALL ]
+then
+  LIST_PKGS_TO_INSTALL+=("${PKG_TO_INSTALL}")
+fi
 
 for PKGS_TO_INSTALL in ${LIST_PKGS_TO_INSTALL[@]}
 do
