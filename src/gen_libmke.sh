@@ -28,7 +28,7 @@ function gen_liblines () {
       
    # Construct the lines in the form:
       
-   echo "LIB${namelok_pkg^^} = -Wl,-rpath=${lib_pkgname_path} -L${lib_pkgname_path} -l${actual_lib_name:3}" >> ${file_name_append}   
+   echo "LIB${namelok_pkg^^} = -Wl,-rpath=${lib_pkgname_path} -L${lib_pkgname_path} -l${actual_lib_name:3}" >> ${file_name_append}
    echo "INC${namelok_pkg^^} = -I${LIPaS_INC}" >> ${file_name_append}
     
    status_return=0    
