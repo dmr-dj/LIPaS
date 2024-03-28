@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.3.8"
+script_version="0.3.9.1"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -135,22 +135,36 @@ display_version() {
 
 parse_params() {
 	
-  args=("$@")
-  
-  #~ [[ ${#args[@]} -lt 2 ]] && die "Missing script arguments: at the minimum I need one input and one output directory"
+  # Define the possible options
+  local SHORT=h,v,D:
+  local LONG=help,verbose,DeleteEnv:,no-color,version
+  local OPTS=$(getopt -n LIPaS --options $SHORT --longoptions $LONG -- "$@")
+  local VALID_ARGUMENTS=${#} # Returns the count of arguments that are in short or long options
 
+  if [ "${VALID_ARGUMENTS}" -ne 0 ]; then
   while :; do
     case "${1-}" in
     -h | --help) usage ;;
     -v | --verbose) verbose=1 ;;
+    -D | --DeleteEnv) 
+      DELETE_ENV=${2}
+      shift
+    ;;
     --no-color) NO_COLOR=1 ;;
     --version) display_version ;;
-    -?*) die "Unknown option: $1" ;;
+    -?*) die "Unknown option: ${1}" ;;
+    --)
+      shift;
+      break
+      ;;
     *) break ;;
     esac
     shift
   done
-
+  else # no specific arguments, running default
+    vrb "Running with default arguments"
+  fi
+ 
   return 0
 }
 
@@ -202,8 +216,10 @@ check_dir_and_mkdir(){
 	
 }
 
-
 setup_colors
+
+source ./LIPaS.params
+
 parse_params "$@"
 
 msg "  ===================================== "
@@ -214,8 +230,6 @@ msg " +                                     +"
 msg "  ===================================== "
 
 msg ""
-
-source ./LIPaS.params
 
 msg "  = Main install dir is set to:       = "
 msg "       ${LIPaS_ROOT} "
@@ -245,9 +259,12 @@ then
   for conf in ${EXISTING_DIRS[@]}
   do
      vrb "Found existing env. for ${conf}"
+     if [[ "${DELETE_ENV}" =~ "${conf}" ]]
+     then
+       msg "You are about to delete the env. ${conf}"
+       die "Delete env not implemented yet"
+     fi     
   done
-  die "Found DIRS"
-
 else
 
   # Creating environnement directory 

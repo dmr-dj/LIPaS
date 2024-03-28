@@ -33,3 +33,6 @@ ENV_DIR="envs"
 
 # Assumes that there is a subdirectory netCDF-F / netCDF - Fortran testing
 SRC_TST_DIR="src-tst"
+
+# Set a variable for ENV DELETE
+DELETE_ENV=""
