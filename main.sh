@@ -489,7 +489,14 @@ unset TOML_TABLE_PKG
 # The function read-toml uses directly the global variable TOML_TABLE_PKG
 declare -A TOML_TABLE_PKG
 
-read-toml pkgs-db/${PKGS_TO_INSTALL}.toml
+
+# Check if the package to install is known from LIPaS config files
+if [ -f pkgs-db/${PKGS_TO_INSTALL}.toml ]
+then
+  read-toml pkgs-db/${PKGS_TO_INSTALL}.toml
+else
+  die "Unable to install ${PKGS_TO_INSTALL}, no toml file"
+fi
 
 unset AARRAY_TEXIST
 declare -A AARRAY_TEXIST
