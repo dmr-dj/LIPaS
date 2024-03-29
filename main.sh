@@ -26,7 +26,7 @@ verbose=0
 
 usage() {
   cat <<EOF
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-f] -p param_value arg1 [arg2...]
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [--version] [-D env_name]
 
 Script description here.
 
@@ -34,6 +34,11 @@ Available options:
 
 -h, --help      Print this help and exit
 -v, --verbose   Print script debug info
+-D, --DeleteEnv Delete the environnement with given name (e.g. gnu)
+-p, --pkg_inst  Install the package with current name (e.g. ncio)
+--version       Print the current version of the script
+
+
 EOF
   exit
 }
