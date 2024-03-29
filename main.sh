@@ -400,15 +400,6 @@ msg "  ===  Analysing Environnements  ====== "
    FC_version=$(${FC} --version | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
    
    vrb "${env_to_build[${CHOSEN_CONF}]} env FC = ${FC_version}"
-
-   source ${MAIN_dir}/${MODULES_D}/test-FC_compiler.sh      
-   test_FC_compiler
-   
-   source ${MAIN_dir}/${MODULES_D}/check_NC-env.sh
-   check_NC-env
-   
-   source ${MAIN_dir}/${MODULES_D}/test-NC_Fortran.sh   
-   test-NC_Fortran
       
    cd ${MAIN_dir}
    
@@ -420,6 +411,15 @@ msg "  ===  Analysing Environnements  ====== "
      iui " ... with the -D option "
      
    else  
+
+     source ${MAIN_dir}/${MODULES_D}/test-FC_compiler.sh      
+     test_FC_compiler
+   
+     source ${MAIN_dir}/${MODULES_D}/check_NC-env.sh
+     check_NC-env
+   
+     source ${MAIN_dir}/${MODULES_D}/test-NC_Fortran.sh   
+     test-NC_Fortran
      
      mkdir -p ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
       
@@ -465,7 +465,6 @@ source ${MAIN_dir}/${MODULES_D}/read-toml.sh
 
 # This package HAS to be installed. LIPaS depends on it
 declare -a LIST_PKGS_TO_INSTALL=("makedepf90")
-
 
 # So far this will work, but problem when looking at dependencies potentially
 # We need an ORDERED list of packages to be installed ...
