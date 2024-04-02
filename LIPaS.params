@@ -23,7 +23,7 @@ confNbLinesFile="6"
 
 # == Generating a temporary file for work, should be random enough within LIPaS self
 tempDIR="tmp-$(hexdump -n 8 -v -e '/1 "%02X"' /dev/urandom)"
-# tempDIR="tmp-7A70845E46A28B02"
+# tempDIR="tmp-669F6639D1650F74"
 
 # == Standard location for the environnements files generated (one by compiler env)
 ENV_DIR="envs"
@@ -35,3 +35,8 @@ SRC_TST_DIR="src-tst"
 
 # Set a variable for ENV DELETE
 DELETE_ENV=""
+
+# gen.libs file
+GEN_LIBS_FILE="gen.libs"
+GEN_ENVS_FILE="gen.env"
+

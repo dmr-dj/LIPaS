@@ -70,23 +70,32 @@ function build_pkg_ff () {
     make)
      vrb "Attmpt. ${method} on ${PKG_NAME}"
      
+     place_pkg="${tempDIR}/${PKG_NAME}"
      place_to_be="${tempDIR}/${PKG_NAME}/${tomlAA["location"]//\"/}"
      hereiam=$(pwd)
      
      if [ -d ${place_to_be} ]
      then
-        cd ${place_to_be}
+        #~ cd ${place_to_be}
         
         sub_method=${tomlAA["mkfile"]//\"/}
+        
         case ${sub_method} in
         ad-hoc)
           vrb "Going for ad-hoc mkfile"
+          
+          mkefile_lipas=$(find ${place_pkg}/. -name "Makefile.LIPaS")
+          mkefile_realp=$(realpath ${mkefile_lipas})
+          mkefile_reald=$(dirname ${mkefile_realp})
+          
           # Here analyse the Makefile.LIPaS
-          if [ -f Makefile.LIPaS ]
+          if [ -f "${mkefile_lipas}" ]
           then
-            vrb "Scan variables in Makefile.LIPaS"
+            vrb "Scan variables in $(basename ${mkefile_lipas})"
+          
+            cd ${mkefile_reald}
             
-            mkefile="Makefile.LIPaS"
+            mkefile=$(basename ${mkefile_lipas})
             dctfile="${DICT_FOR_ENV}"
                         
             readarray -t mkefile_array < <(cat ${mkefile} | grep --null -n \@.*\@ | cut --delimiter=: -f2)  
@@ -98,18 +107,25 @@ function build_pkg_ff () {
             
             for (( j = 0 ; j < ${#mkefile_array[@]} ; j++ ))
             do
-              key_mkefile=$( get_keyvalue "${mkefile_array[j]}" )
-              value_mkefile=$( get_valuekey "${mkefile_array[j]}" )
+              key_mkefile=$( get_keyvalue "${mkefile_array[j]}" )   # List of keys that are in the Makefile
+              value_mkefile=$( get_valuekey "${mkefile_array[j]}" ) # List of values that are in the Makefile
+              
+              #~ echo "key_mkefile = ${key_mkefile}"
+              #~ echo "value_mkefile = ${value_mkefile}"
+              
+              found_valueMkefile=0
+              # Lookup whether this value ( e.g. @FORTRAN_COMPILER_PATH@ )
+              # ... is present in the dictionnary file of the compiler 
               
               for (( k = 0 ; k < ${#dctfile_array[@]} ; k++ ))
               do              
                 key_dctfile=$( get_keyvalue "${dctfile_array[k]}" )
-
-                if [ ${key_dctfile} == ${value_mkefile} ]
+                
+                if [ ${key_dctfile} == ${value_mkefile} ] # Found a match in the dictionnary file, get the dictionnary value
                 then
                    value_dctfile=$( get_valuekey "${dctfile_array[k]}" )
                    
-                   if [[ "${value_dctfile}" == "FROM_ENV" ]]
+                   if [[ "${value_dctfile}" == "FROM_ENV" ]] # Specific case of an environnement variable hard wired
                    then
                       # Hardwired for now, could do much better
                       case ${key_dctfile//\@/} in
@@ -128,9 +144,26 @@ function build_pkg_ff () {
                    #~ vrb "${key_dctfile} and ${value_mkefile} not comparable"
                    
                    # Replace values found in the temporary makefile
-                   sed -i "s+${key_dctfile}+${value_dctfile}+g" ${mkefileinwork}
+                   sed -i "s+${key_dctfile}+${value_dctfile}+g" ${mkefileinwork}                                  
+                   found_valueMkefile=1     
                  fi
               done
+              if [ "${found_valueMkefile}" -eq 0 ]
+              then
+                #~ echo "value_mkefile = ${value_mkefile//\@/}"
+                #~ echo "Not found anywhere ..."
+                
+                printenv | grep "${value_mkefile//\@/}" 2>&1 > /dev/null
+                
+                if [ $? -eq "0" ]
+                then
+                  #~ echo "Found system variable matching:"
+                  #~ echo ${value_mkefile}
+                  #~ echo "$(eval echo \$${value_mkefile//\@/})"
+                  sed -i "s+${value_mkefile}+$(eval echo \$${value_mkefile//\@/})+g" ${mkefileinwork}
+                  
+                fi
+              fi
             done
 
           else
@@ -157,7 +190,7 @@ function build_pkg_ff () {
      return ${success_or_not}
     ;;
 	*)
-	die "Unknown build meth. ${method} for lang=CC"
+	die "Unknown build meth. ${method} for lang=FF"
 	;;
   esac
 

@@ -1,0 +1,29 @@
+# 2024-03-29 / LIPaS / (c) dmr-dj
+
+title="ncio / LIPaS configuration file"
+
+[pkginfo]
+name="ncio"
+owner="Alexander Robinson"
+license="????"
+date=""
+type="external"
+
+[retrieve]
+method="git"
+gitpath="https://github.com/dmr-dj/ncio.git"
+
+[dependencies]
+pkgs="netcdf"
+
+[build]
+lang="FF"
+method="make"
+mkfile="ad-hoc"
+target="lib"
+location="src"
+
+[installtst]
+lib="libncio"
+
+# The End of All Things (op. cit.)

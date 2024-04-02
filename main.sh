@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.3.9.3"
+script_version="0.4.0"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -414,7 +414,20 @@ msg "  ===  Analysing Environnements  ====== "
      iui "Not deleting the current config."
      iui "You can specifically do that ..."
      iui " ... with the -D option "
-     
+
+     vrb "Loading environnement"
+     local_file_towork="${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}"
+
+     readarray -t vars_to_set < <(cat ${local_file_towork} | grep --null .*=.* | cut --delimiter== -f1)  
+     readarray -t value_to_set < <(cat ${local_file_towork} | grep --null -n .*=.* | cut --delimiter== -f2-)
+
+     for (( j = 0 ; j < ${#vars_to_set[@]} ; j++ ))
+     do
+        export "${vars_to_set[j]// /}=${value_to_set[j]}"
+     done
+
+
+
    else  
 
      source ${MAIN_dir}/${MODULES_D}/test-FC_compiler.sh      
@@ -426,15 +439,25 @@ msg "  ===  Analysing Environnements  ====== "
      source ${MAIN_dir}/${MODULES_D}/test-NC_Fortran.sh   
      test-NC_Fortran
      
-     mkdir -p ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
+     mkdir -p ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
       
-     cd ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
+     cd ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
     
-     vrb "Generating .pkg" 
-     echo "FC = ${FC}" >> gen.env
+     vrb "Generating .pkg"
+     #~ if [ ! -f ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_ENVS_FILE} ]
+     #~ then
+       #~ touch ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_ENVS_FILE}
+     #~ fi
+     echo "FC = ${FC}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_ENVS_FILE}
      vrb "Generating .libs"
-     echo "INCNETCDF = ${INCNETCDF}" >> gen.libs
-     echo "LIBNETCDF = ${LIBNETCDF}" >> gen.libs
+
+     #~ if [ ! -f  ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE} ]
+     #~ then
+       #~ touch ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}
+     #~ fi
+
+     echo "INCNETCDF = ${INCNETCDF}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}
+     echo "LIBNETCDF = ${LIBNETCDF}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}
      
    fi
   
@@ -552,6 +575,19 @@ msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}"
 
 done # Loop on the list of pkg to install
 
-rm -fR ${tempDIR}
+
+cd ${MAIN_dir}
+
+tmpToTrash="tmptoTrash.$(hexdump -n 8 -v -e '/1 "%02X"' /dev/urandom)"
+
+if [ -f ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE} ]
+then
+  # Adding a cleanup of GEN_LIBS_FILE, over declaration of factors in current version
+  mv ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE} ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${tmpToTrash}
+  cat ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${tmpToTrash} | sort | uniq > ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}
+  rm -f ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${tmpToTrash}
+fi
+
+# rm -fR ${tempDIR}
 
 # The End of All Things (op. cit.)

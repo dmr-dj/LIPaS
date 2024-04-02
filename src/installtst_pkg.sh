@@ -37,7 +37,7 @@ function installtst_pkg () {
     
    status_return=0 
     
-   #~ # To check the hash table content
+   # To check the hash table content
    #~ for i in "${!tomlAA[@]}"
    #~ do
      #~ echo "${i} ${tomlAA[$i]}"
