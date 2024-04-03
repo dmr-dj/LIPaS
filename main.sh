@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.4.0"
+script_version="0.4.1"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -156,7 +156,13 @@ parse_params() {
       shift
     ;;
     -p | --pkg-inst)
-      PKG_TO_INSTALL=${2}
+      oldIFS=${IFS}
+      export IFS=","
+      for pkg in ${2}
+      do
+        PKG_TO_INSTALL+=" ${pkg}"
+      done
+      IFS=${oldIFS}
       shift
     ;;
     --no-color) NO_COLOR=1 ;;
@@ -426,8 +432,6 @@ msg "  ===  Analysing Environnements  ====== "
         export "${vars_to_set[j]// /}=${value_to_set[j]}"
      done
 
-
-
    else  
 
      source ${MAIN_dir}/${MODULES_D}/test-FC_compiler.sh      
@@ -444,17 +448,9 @@ msg "  ===  Analysing Environnements  ====== "
      cd ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
     
      vrb "Generating .pkg"
-     #~ if [ ! -f ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_ENVS_FILE} ]
-     #~ then
-       #~ touch ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_ENVS_FILE}
-     #~ fi
+
      echo "FC = ${FC}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_ENVS_FILE}
      vrb "Generating .libs"
-
-     #~ if [ ! -f  ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE} ]
-     #~ then
-       #~ touch ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}
-     #~ fi
 
      echo "INCNETCDF = ${INCNETCDF}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}
      echo "LIBNETCDF = ${LIBNETCDF}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}
