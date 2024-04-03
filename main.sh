@@ -157,12 +157,12 @@ parse_params() {
     ;;
     -p | --pkg-inst)
       oldIFS=${IFS}
-      export IFS=","
+      IFS=","
       for pkg in ${2}
       do
         PKG_TO_INSTALL+=" ${pkg}"
       done
-      IFS=${oldIFS}
+      IFS=${oldIFS}      
       shift
     ;;
     --no-color) NO_COLOR=1 ;;
@@ -584,6 +584,6 @@ then
   rm -f ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${tmpToTrash}
 fi
 
-# rm -fR ${tempDIR}
+rm -fR ${tempDIR}
 
 # The End of All Things (op. cit.)
