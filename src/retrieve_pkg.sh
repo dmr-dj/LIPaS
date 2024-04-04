@@ -44,13 +44,30 @@ function retrieve_pkg () {
      #~ echo "${i} ${tomlAA[$i]}"
    #~ done
    
-   case ${tomlAA["method"]} in
-     \"git\")
+   case ${tomlAA["method"]//\"/} in
+     git)
         vrb "Attempting git retrieve"
         git clone ${tomlAA["path"]//\"} ${MAIN_dir}/${tempDIR}/${name_pkg} --quiet 2>&1 > /dev/null
       ;;
+     wget)
+        vrb "Attempting wget retrieve"
+        issy="$(pwd)"
+        mkdir ${MAIN_dir}/${tempDIR}/${name_pkg}
+        cd ${MAIN_dir}/${tempDIR}/${name_pkg}
+        wget -q ${tomlAA["path"]//\"} 2>&1 > /dev/null
+        nameF=$(find . -type f)
+        if ( file ${nameF} | grep -q compressed )
+        then
+          vrb "${nameF} is compressed"
+          source ${MAIN_dir}/${MODULES_D}/unpack.sh
+          unpack ${nameF}
+        else
+          vrb "${nameF} is not compressed, skipping"
+        fi
+        cd ${issy}
+      ;;
       *)
-        die "${tomlAA["method"]} retrieve not implemented yet"
+        die "${tomlAA["method"]//\"/} retrieve not implemented yet"
       ;;
    esac
   
