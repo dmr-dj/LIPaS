@@ -1,0 +1,30 @@
+# 2024-04-02 / LIPaS / (c) dmr-dj
+
+title="lapack (netlib) / LIPaS configuration file"
+
+[pkginfo]
+name="lapack"
+owner=""
+license="modified BSD"
+date=""
+type="external"
+
+[retrieve]
+method="wget"
+path="https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.12.0.tar.gz"
+
+[dependencies]
+pkgs=""
+
+[build]
+lang="CC,FF"
+method="make"
+mkfile="inc"
+incfile="make.inc"
+target=""
+location="INSTALL"
+
+[installtst]
+lib="liblapack,librefblas,libtmglib"
+
+# The End of All Things (op. cit.)

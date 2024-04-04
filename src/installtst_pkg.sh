@@ -49,7 +49,7 @@ function installtst_pkg () {
      then # this should have installed a binary
         if [ -f ${LIPaS_BIN}/${tomlAA[${key}]//\"} ]
         then
-           echo ${LIPaS_BIN}/${tomlAA[${key}]//\"} > "pkgs-db/${PKG_NAME}.ok"
+           echo ${LIPaS_BIN}/${tomlAA[${key}]//\"} > "${PKG_DATABASE}/${PKG_NAME}.ok"
         else
            status_return=1
         fi
@@ -59,7 +59,7 @@ function installtst_pkg () {
         if [ -f ${LIPaS_LIB}/${tomlAA[${key}]//\"}.a ]
         then        
            gen_liblines ${PKG_NAME} "${LIPaS_LIB}" ${tomlAA[${key}]//\"} "${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/gen.libs"
-           echo ${LIPaS_LIB}/${tomlAA[${key}]//\"}.a > "pkgs-db/${PKG_NAME}.ok"
+           echo ${LIPaS_LIB}/${tomlAA[${key}]//\"}.a > "${PKG_DATABASE}/${PKG_NAME}.ok"
         else
            status_return=1
         fi

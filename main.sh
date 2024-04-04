@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.4.1"
+script_version="0.4.2"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -278,6 +278,12 @@ then
      then
        rm -fR ${ENV_DIR}/${conf}
        die "${conf} environnement deleted"
+     elif [[ "${DELETE_ENV}" =~ "all" ]] 
+     then
+       rm -fR ${ENV_DIR}/${conf}
+       rm -fR ${PKG_DATABASE}/*.ok
+       rm -fR ${LIPaS_ROOT}/*
+       die "Complete cleanup of LIPaS installation done"
      fi     
   done
 else

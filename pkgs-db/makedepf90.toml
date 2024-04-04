@@ -11,7 +11,7 @@ type="external"
 
 [retrieve]
 method="git"
-gitpath="https://github.com/dmr-dj/makedepf90.git"
+path="https://github.com/dmr-dj/makedepf90.git"
 
 [dependencies]
 pkgs=""

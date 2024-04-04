@@ -47,7 +47,7 @@ function retrieve_pkg () {
    case ${tomlAA["method"]} in
      \"git\")
         vrb "Attempting git retrieve"
-        git clone ${tomlAA["gitpath"]//\"} ${MAIN_dir}/${tempDIR}/${name_pkg} --quiet 2>&1 > /dev/null
+        git clone ${tomlAA["path"]//\"} ${MAIN_dir}/${tempDIR}/${name_pkg} --quiet 2>&1 > /dev/null
       ;;
       *)
         die "${tomlAA["method"]} retrieve not implemented yet"
