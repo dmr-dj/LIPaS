@@ -17,7 +17,7 @@
 function get_tomlTableNms () {
    local tomlFile=${1}
 
-   vrb "Table reading"   
+   # vrb "Table reading"   
    
    readarray -t tomlTableNames < <(grep '\[*\]' ${tomlFile})
    readarray -t tomlTableIndex < <(grep -n '\[*\]' ${tomlFile} | cut --delimiter=: -f 1)	
@@ -40,7 +40,7 @@ function get_tomlVarsInTables () {
    local varsRead
    declare -a varsRead
 
-   vrb "Vars in Table reading"  
+   # vrb "Vars in Table reading"  
 
    local key
    local value

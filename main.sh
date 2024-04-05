@@ -463,19 +463,18 @@ msg "  ===  Analysing Environnements  ====== "
      
    fi
   
-   # Adding the checking of the env.dict
+# Adding the checking of the env.dict
    
-   if [ -f ${MAIN_dir}/${DICT_DIR}/${env_to_build[${CHOSEN_CONF}]}.dict ]
-   then
-       vrb "Found dictionnary file for ${env_to_build[${CHOSEN_CONF}]}"
-       DICT_FOR_ENV="${MAIN_dir}/${DICT_DIR}/${env_to_build[${CHOSEN_CONF}]}.dict"
-   else
-       die "Could not find dictionnary file for ${env_to_build[${CHOSEN_CONF}]}"
-   fi
+if [ -f ${MAIN_dir}/${DICT_DIR}/${env_to_build[${CHOSEN_CONF}]}.dict ]
+then
+   vrb "Found dictionnary file for ${env_to_build[${CHOSEN_CONF}]}"
+   DICT_FOR_ENV="${MAIN_dir}/${DICT_DIR}/${env_to_build[${CHOSEN_CONF}]}.dict"
+else
+   die "Could not find dictionnary file for ${env_to_build[${CHOSEN_CONF}]}"
+fi
             
-   msg " +  Generating ${env_to_build[${CHOSEN_CONF}]} environnement ...   + ${GREEN} [Done] ${NOFORMAT}" 
+msg " +  Generating ${env_to_build[${CHOSEN_CONF}]} environnement ...   + ${GREEN} [Done] ${NOFORMAT}" 
    
-   #~ done
 
 cd ${MAIN_dir}
 
@@ -484,7 +483,7 @@ cd ${MAIN_dir}
 # Here a first version of installing any library in the base config
 # Steps are:
 # 	=> retreive
-# 		-> method / git = git clone in tmp
+# 		-> method / git = git clone in tmp / wget ...
 #   => build
 #       -> depends on language/method : autotools = configure ; make ; check success 
 #   => install
@@ -499,15 +498,79 @@ declare -a LIST_PKGS_TO_INSTALL=("makedepf90")
 # So far this will work, but problem when looking at dependencies potentially
 # We need an ORDERED list of packages to be installed ...
 
+# Need the code here to check correctly the dependencies and ordering before inputing in the main loop ... 
+
+for PKGSINSTALL in ${PKG_TO_INSTALL}
+do
+
+  # The function read-toml uses directly the global variable TOML_TABLE_PKG
+  declare -A TOML_TABLE_PKG
+
+  # Check if the package to install is known from LIPaS config files
+  if [ -f pkgs-db/${PKGSINSTALL}.toml ]
+  then
+    read-toml pkgs-db/${PKGSINSTALL}.toml
+  else
+    die "Unable to install ${PKGSINSTALL}, no toml file"
+  fi
+
+  # Check wether has dependencies ...
+
+  unset AARRAY_TEXIST
+  declare -A AARRAY_TEXIST
+
+  if Texists "dependencies" in "$(declare -p TOML_TABLE_PKG)"
+  then
+    DEP_NAMES=${AARRAY_TEXIST["pkgs"]//\"}
+    if [ ! ${DEP_NAMES} == "" ]
+    then
+
+      oldIFS=${IFS}
+      IFS=","
+      for dep in ${DEP_NAMES}
+      do
+        DEP_PKGS+=" ${dep}"
+      done
+      IFS=${oldIFS}      
+
+      vrb "Dependencies found: ${DEP_PKGS}"
+      DEP_PKGS+=" ${PKGSINSTALL}"
+    else
+      vrb "Package ${PKGSINSTALL} has no dependencies"
+      INDEP_PKGS+=" ${PKGSINSTALL}"
+    fi
+  else
+    vrb "Package ${PKGSINSTALL} has no dependencies"
+    INDEP_PKGS+=" ${PKGSINSTALL}"
+  fi
+
+  # Check if the dependency is in the package list to be install
+
+
+  unset DEP_NAMES
+  unset TOML_TABLE_PKG
+
+done
+
+unset PKGSINSTALL
+
+vrb " === DEP. SUMMARY  ==="
+vrb "  dep. pkg : ${DEP_PKGS}"
+vrb "indep. pkg : ${INDEP_PKGS}"
+
+die "Temporary stop for developping"
+
+# All good with the list of packages, ready to go
+
 if [ -v PKG_TO_INSTALL ]
 then
   LIST_PKGS_TO_INSTALL+=("${PKG_TO_INSTALL}")
 fi
 
+# I think an "unset PKGS_TO_INSTALL would be cleaner here ...
+
 for PKGS_TO_INSTALL in ${LIST_PKGS_TO_INSTALL[@]}
 do
-
-# PKGS_TO_INSTALL ... should be in a loop at some point!
 
 unset TOML_TABLE_PKG
 
@@ -547,6 +610,7 @@ then
   vrb "${PKG_NAME} is already installed"
 
 else
+
   declare -a pkg_work=(retrieve build installtst)
 
   for TODO in ${pkg_work[@]}
