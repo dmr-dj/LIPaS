@@ -499,7 +499,7 @@ declare -a LIST_PKGS_TO_INSTALL=("makedepf90")
 # We need an ORDERED list of packages to be installed ...
 
 
-if [ -v PKGSINSTALL ]
+if [ -v PKG_TO_INSTALL ]
 then
 
 # Need the code here to check correctly the dependencies and ordering before inputing in the main loop ... 
@@ -554,13 +554,18 @@ do
   unset DEP_NAMES
   unset TOML_TABLE_PKG
 
-done
+done # on PKGS_TO_INSTALL ...
 
 unset PKGSINSTALL
 
-vrb " === DEP. SUMMARY  ==="
-vrb "  dep. pkg : ${DEP_PKGS}"
-vrb "indep. pkg : ${INDEP_PKGS}"
+if [ -v DEP_PKGS ]
+then
+
+  vrb " === DEP. SUMMARY  ==="
+  vrb "  dep. pkg : ${DEP_PKGS}"
+  vrb "indep. pkg : ${INDEP_PKGS}"
+
+fi
 
 fi
 
