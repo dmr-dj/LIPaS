@@ -498,6 +498,10 @@ declare -a LIST_PKGS_TO_INSTALL=("makedepf90")
 # So far this will work, but problem when looking at dependencies potentially
 # We need an ORDERED list of packages to be installed ...
 
+
+if [ -v PKGSINSTALL ]
+then
+
 # Need the code here to check correctly the dependencies and ordering before inputing in the main loop ... 
 
 for PKGSINSTALL in ${PKG_TO_INSTALL}
@@ -557,6 +561,9 @@ unset PKGSINSTALL
 vrb " === DEP. SUMMARY  ==="
 vrb "  dep. pkg : ${DEP_PKGS}"
 vrb "indep. pkg : ${INDEP_PKGS}"
+
+fi
+
 
 die "Temporary stop for developping"
 
