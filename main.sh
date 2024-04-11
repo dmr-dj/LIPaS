@@ -569,9 +569,6 @@ fi
 
 fi
 
-
-die "Temporary stop for developping"
-
 # All good with the list of packages, ready to go
 
 if [ -v PKG_TO_INSTALL ]
