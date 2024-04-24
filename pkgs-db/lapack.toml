@@ -17,12 +17,12 @@ path="https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.12.0.tar.g
 pkgs=""
 
 [build]
-lang="CC,FF"
+lang="FF"
 method="make"
-mkfile="inc"
-incfile="make.inc"
-target=""
-location="INSTALL"
+mkfile="ad-hoc"
+modifier="internal|make.inc"
+target="all"
+location="lapack-3.12.0"
 
 [installtst]
 lib="liblapack,librefblas,libtmglib"

@@ -20,6 +20,27 @@
 # [TODO] check that indeed we are running with bash >= 4
 
 
+function list-make-targets (){
+	
+  # Need at least one parameter : the target searched
+  # Optionally get the Makefile name
+  
+  if [ -z ${2+x} ] # no Makefile name provided ...
+  then
+    returnedword=$(make -qp | awk -F':' '/^[a-zA-Z0-9][^$#\/\t=]*:([^=]|$)/ {split($1,A,/ /);for(i in A)print A[i]}' | sort -u | grep -w ${1})
+  else
+    returnedword=$(make --makefile=${2} -qp | awk -F':' '/^[a-zA-Z0-9][^$#\/\t=]*:([^=]|$)/ {split($1,A,/ /);for(i in A)print A[i]}' | sort -u | grep -w ${1})
+  fi
+  
+  if [ "${returnedword}" = "${1}" ]
+  then
+    echo "OK"
+  else
+    echo "NOT"
+  fi
+
+}
+
 function build_pkg_cc () {
 	
   local method=${1//\"/}
@@ -84,9 +105,29 @@ function build_pkg_ff () {
         ad-hoc)
           vrb "Going for ad-hoc mkfile"
           
-          mkefile_lipas=$(find ${place_pkg}/. -name "Makefile.LIPaS")
-          mkefile_realp=$(realpath ${mkefile_lipas})
-          mkefile_reald=$(dirname ${mkefile_realp})
+          sub_modifier=${tomlAA["modifier"]//\"/}
+                         
+          case ${sub_modifier} in
+          internal*)
+            vrb "Internal switch"
+            internal_file=$(echo "${sub_modifier}" | cut --delimiter=\| -f 2)
+            if [ -f ${PKG_DATABASE}/${PKG_NAME}/${internal_file}.LIPaS ]
+            then
+              # Copy the internal specific file in the place_to_be
+              cp -f ${PKG_DATABASE}/${PKG_NAME}/${internal_file}.LIPaS ${place_to_be}/.
+              mkefile_lipas=$(find ${place_pkg}/. -name "${internal_file}.LIPaS")
+              mkefile_realp=$(realpath ${mkefile_lipas})
+              mkefile_reald=$(dirname ${mkefile_realp})              
+            else
+              die "make process failed no file ${my_file}.LIPaS"
+            fi
+          ;;
+          *)
+            mkefile_lipas=$(find ${place_pkg}/. -name "Makefile.LIPaS")
+            mkefile_realp=$(realpath ${mkefile_lipas})
+            mkefile_reald=$(dirname ${mkefile_realp})
+          ;;
+          esac
           
           # Here analyse the Makefile.LIPaS
           if [ -f "${mkefile_lipas}" ]
@@ -135,6 +176,9 @@ function build_pkg_ff () {
                        INSTALL_PREFIX)
                         value_dctfile="${LIPaS_ROOT}"
                        ;;
+                       C_COMPILER_PATH)
+                        value_dctfile="${CC}"
+                       ;;                       
                        *)
                         die "Unkown key from env ${key_dctfile}"
                        ;;
@@ -176,10 +220,55 @@ function build_pkg_ff () {
         esac
         
         vrb "Building ${PKG_NAME}"
+        declare -a mke_taargets_list=("clean" "${tomlAA["target"]//\"/}" "install")
+        
+        if [ -z ${internal_file+x} ] # no internal file, this is a Makefile STD
+        then
+        
+          for mke_taarget in "${mke_taargets_list[@]}"
+          do
+            vrb "Making target ${mke_taarget}"
+            found=$(list-make-targets "${mke_taarget}" "${mkefileinwork}")
+            if [ "${found}" == "OK" ]
+            then          
+              make -s --makefile=${mkefileinwork} "${mke_taarget}" 2>&1 > /dev/null
+            else
+              vrb "Skipping target ${mke_taarget}"
+            fi 
+          done
                 
-        make -s --makefile=${mkefileinwork} clean 2>&1 > /dev/null
-        make -s --makefile=${mkefileinwork} ${tomlAA["target"]//\"/} 2>&1 > /dev/null
-        make -s --makefile=${mkefileinwork} install 2>&1 > /dev/null
+        else # I was given an internal file that can be a Makefile or an include file
+        
+          if [[ "${internal_file}" == *"Makefile"* ]]
+          then # it is indeed a Makefile, go usual way
+            for mke_taarget in "${mke_taargets_list[@]}"
+            do
+              vrb "Making target ${mke_taarget}"
+              found=$(list-make-targets "${mke_taarget}" "${mkefileinwork}")
+              if [ "${found}" == "OK" ]
+              then          
+                make -s --makefile=${mkefileinwork} "${mke_taarget}" 2>&1 > /dev/null
+              else
+                vrb "Skipping target ${mke_taarget}"
+              fi 
+            done
+          else # not a Makefile, probably an include, assuming a STD Makefile exists in the same place
+            cp -f ${mkefileinwork} ${internal_file}
+            vrb "Set ${internal_file}"
+            for mke_taarget in "${mke_taargets_list[@]}"
+            do
+              vrb "Making target ${mke_taarget}"
+              found=$(list-make-targets "${mke_taarget}")
+              if [ "${found}" == "OK" ]
+              then          
+                make -s "${mke_taarget}" 2>&1 > /dev/null
+              else
+                vrb "Skipping target ${mke_taarget}"
+              fi 
+            done
+          fi
+        
+        fi # on internal_file
         
         cd ${hereiam}
      else

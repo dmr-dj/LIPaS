@@ -16,11 +16,15 @@
 
 @FORTRAN_COMPILER_PATH@	=	FROM_ENV
 @INSTALL_PREFIX@		=	FROM_ENV
+@C_COMPILER_PATH@	=	FROM_ENV
 
 
 # Compiler specific switches
 
 @F_OPTIM_HIGH@			=	-O3
+@F_OPTIM_MED@			=	-O2
+@F_OPTIM_NULL@			=	-O0
 @F_PRE_PROCESS@			=	-cpp
 @F_IMPLIC_NONE@			=	-fimplicit-none
+@F_RECURSIVE@			=	-frecursive
 

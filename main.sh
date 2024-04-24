@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.4.2"
+script_version="0.5.0"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -427,7 +427,21 @@ msg "  ===  Analysing Environnements  ====== "
      iui "You can specifically do that ..."
      iui " ... with the -D option "
 
-     vrb "Loading environnement"
+     vrb "Loading environnement | ${GEN_ENVS_FILE}"
+
+     local_file_towork="${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_ENVS_FILE}"
+
+     readarray -t vars_to_set < <(cat ${local_file_towork} | grep --null .*=.* | cut --delimiter== -f1)  
+     readarray -t value_to_set < <(cat ${local_file_towork} | grep --null -n .*=.* | cut --delimiter== -f2-)
+
+     for (( j = 0 ; j < ${#vars_to_set[@]} ; j++ ))
+     do
+        vrb "Setting: ${vars_to_set[j]// /}"
+        export "${vars_to_set[j]// /}=${value_to_set[j]}"
+     done     
+     
+     vrb "Loading environnement | ${GEN_LIBS_FILE}"
+     
      local_file_towork="${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}"
 
      readarray -t vars_to_set < <(cat ${local_file_towork} | grep --null .*=.* | cut --delimiter== -f1)  
@@ -435,6 +449,7 @@ msg "  ===  Analysing Environnements  ====== "
 
      for (( j = 0 ; j < ${#vars_to_set[@]} ; j++ ))
      do
+        vrb "Setting: ${vars_to_set[j]// /}"
         export "${vars_to_set[j]// /}=${value_to_set[j]}"
      done
 
@@ -456,8 +471,17 @@ msg "  ===  Analysing Environnements  ====== "
      vrb "Generating .pkg"
 
      echo "FC = ${FC}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_ENVS_FILE}
+     
+     CC_line=$(grep "CC" ${conf})
+     vrb "CC as ${CC_line}"
+     if [ "${CC_line}" ]
+     then
+       declare -x ${CC_line}
+       echo "CC = ${CC}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_ENVS_FILE}
+     fi
+     
      vrb "Generating .libs"
-
+     
      echo "INCNETCDF = ${INCNETCDF}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}
      echo "LIBNETCDF = ${LIBNETCDF}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}
      

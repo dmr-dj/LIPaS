@@ -20,6 +20,7 @@ pkgs=""
 lang="FF"
 method="make"
 mkfile="ad-hoc"
+modifier=""
 target="lib"
 location="source"
 
