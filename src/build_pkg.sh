@@ -105,7 +105,12 @@ function build_pkg_ff () {
         ad-hoc)
           vrb "Going for ad-hoc mkfile"
           
-          sub_modifier=${tomlAA["modifier"]//\"/}
+	  if [[ ${tomlAA["modifier"]+_} ]]
+          then
+            sub_modifier=${tomlAA["modifier"]//\"/}
+	  else
+            sub_modifier=""
+	  fi
                          
           case ${sub_modifier} in
           internal*)

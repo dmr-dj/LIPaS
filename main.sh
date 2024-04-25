@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.5.0"
+script_version="0.5.1"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -587,7 +587,10 @@ then
 
   vrb " === DEP. SUMMARY  ==="
   vrb "  dep. pkg : ${DEP_PKGS}"
+if [ -v INDEP_PKGS ]
+then
   vrb "indep. pkg : ${INDEP_PKGS}"
+fi
 
 fi
 
