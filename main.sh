@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.5.1"
+script_version="0.5.2"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -26,18 +26,20 @@ verbose=0
 
 usage() {
   cat <<EOF
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [--version] [-D env_name]
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [--version] [-D env_name] [-p package_name]
 
-Script description here.
+This is LIPaS v${script_version}
 
 Available options:
 
 -h, --help      Print this help and exit
 -v, --verbose   Print script debug info
--D, --DeleteEnv Delete the environnement with given name (e.g. gnu)
 -p, --pkg_inst  Install the package with current name (e.g. ncio)
---version       Print the current version of the script
 
+
+--version       Print the current version of the script
+-D, --DeleteEnv Delete the environnement with given name (e.g. gnu)
+-R, --reinitAll Removal of the whole LIPaS installation
 
 EOF
   exit
@@ -138,11 +140,32 @@ display_version() {
   
 }
 
+function reinitAll () {
+  
+  gui "You are about to delete completly"
+  gui "     the local LIPaS install     "
+  gui "Are you sure that you want       "
+  iui "       to continue?  [Y/N]       "
+  
+  read xyzzy 
+  
+  if [[ ! ${xyzzy} == "Y" ]] ; then
+    gui "Not deleted anything ..."
+    die ""
+  else
+    rm -f ${PKG_DATABASE}/*.ok
+    rm -fR ${LIPaS_ROOT}/*
+    rm -fR ${ENV_DIR}/*
+    die "Full LIPaS delete done"
+  fi  
+  
+}
+
 parse_params() {
 	
   # Define the possible options
-  local SHORT=h,v,D:,p:
-  local LONG=help,verbose,DeleteEnv:,no-color,version,--pkg-inst:
+  local SHORT=h,v,D:,p:,R
+  local LONG=help,verbose,DeleteEnv:,no-color,version,--pkg-inst:,--reinitAll
   local OPTS=$(getopt -n LIPaS --options $SHORT --longoptions $LONG -- "$@")
   local VALID_ARGUMENTS=${#} # Returns the count of arguments that are in short or long options
 
@@ -165,8 +188,11 @@ parse_params() {
       IFS=${oldIFS}      
       shift
     ;;
+    -R | --reinitAll) 
+      reinitAll_flag="Y"
+    ;;    
     --no-color) NO_COLOR=1 ;;
-    --version) display_version ;;
+    --version) display_version ;;    
     -?*) die "Unknown option: ${1}" ;;
     --)
       shift;
@@ -264,6 +290,15 @@ check_dir_and_mkdir "${LIPaS_BIN}"
 check_dir_and_mkdir "${LIPaS_INC}"
 check_dir_and_mkdir "${LIPaS_LIB}"
 
+
+# Check if we are deleting everything ...
+if [ -v reinitAll_flag ]
+then
+  if [ "${reinitAll_flag}" == "Y" ]
+  then
+     reinitAll
+  fi
+fi
 
 # Check whether an environnement already exists
 
