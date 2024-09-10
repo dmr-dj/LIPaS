@@ -25,6 +25,6 @@ target="all"
 location="lapack-3.12.0"
 
 [installtst]
-lib="liblapack,librefblas,libtmglib"
+lib="liblapack librefblas libtmglib"
 
 # The End of All Things (op. cit.)

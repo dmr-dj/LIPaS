@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.5.2"
+script_version="0.5.3"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -683,6 +683,7 @@ then
 else
 
   declare -a pkg_work=(retrieve build installtst)
+  # declare -a pkg_work=(installtst)
 
   for TODO in ${pkg_work[@]}
   do
@@ -725,6 +726,6 @@ then
   rm -f ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${tmpToTrash}
 fi
 
-rm -fR ${tempDIR}
+# rm -fR ${tempDIR}
 
 # The End of All Things (op. cit.)

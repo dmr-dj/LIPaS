@@ -38,10 +38,10 @@ function installtst_pkg () {
    status_return=0 
     
    # To check the hash table content
-   #~ for i in "${!tomlAA[@]}"
-   #~ do
-     #~ echo "${i} ${tomlAA[$i]}"
-   #~ done    
+   # for i in "${!tomlAA[@]}"
+   # do
+   #   echo "${i} ${tomlAA[$i]}"
+   # done    
     
    for key in ${!tomlAA[@]}
    do
@@ -55,14 +55,34 @@ function installtst_pkg () {
         fi
      fi
      if [ ${key} == "lib" ]
-     then # this should have installed a library
-        if [ -f ${LIPaS_LIB}/${tomlAA[${key}]//\"}.a ]
-        then        
-           gen_liblines ${PKG_NAME} "${LIPaS_LIB}" ${tomlAA[${key}]//\"} "${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/gen.libs"
-           echo ${LIPaS_LIB}/${tomlAA[${key}]//\"}.a > "${PKG_DATABASE}/${PKG_NAME}.ok"
-        else
-           status_return=1
-        fi
+     then # this should have installed a library or several
+        well_installed=""
+	for library_inst in ${tomlAA[$key]//\"}
+        do
+          if [ -f ${LIPaS_LIB}/${library_inst}.a ]
+          then        
+             well_installed="${well_installed} ${library_inst}"
+          else
+             # Library has not been installed in the right place
+             # Try to figure it out
+             # 
+             vrb "search for ${library_inst}.a"
+	     locatie_lib=$(find ${MAIN_dir}/${tempDIR} -name "${library_inst}.a")
+             if [ -f ${locatie_lib} ]
+             then
+                cp -vf ${locatie_lib} ${LIPaS_LIB}/.
+                well_installed="${well_installed} ${library_inst}.a"
+             else
+                die "${library_inst} not found"
+             fi
+             status_return=1
+          fi
+        done
+        gen_liblines ${PKG_NAME} "${LIPaS_LIB}" "${well_installed}" "${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/gen.libs"
+	for lib_installed in ${well_installed}
+        do
+           echo ${LIPaS_LIB}/${lib_installed} >> "${PKG_DATABASE}/${PKG_NAME}.ok"
+        done
      fi
      return ${status_return}
    done

@@ -23,7 +23,6 @@ confNbLinesFile="6"
 
 # == Generating a temporary file for work, should be random enough within LIPaS self
 tempDIR="tmp-$(hexdump -n 8 -v -e '/1 "%02X"' /dev/urandom)"
-# tempDIR="tmp-B4FCA7C9FDD9C2DE"
 
 # == Standard location for the environnements files generated (one by compiler env)
 ENV_DIR="envs"

@@ -25,15 +25,19 @@ function gen_liblines () {
    # we get something where
    # ${lib_pkgname_path} gives the lib is (alrady verified existence)
    # ${namelok_pkg} gives the common name of the package
-      
+     
+   # actual_lib_name can have severall items
+   libline=""
+   for elemnt in ${actual_lib_name}
+   do
+     libline="${libline} -Wl,-rpath=${lib_pkgname_path} -L${lib_pkgname_path} -l${elemnt:3}"
+   done 
    # Construct the lines in the form:
       
-   echo "LIB${namelok_pkg^^} = -Wl,-rpath=${lib_pkgname_path} -L${lib_pkgname_path} -l${actual_lib_name:3}" >> ${file_name_append}
+   echo "LIB${namelok_pkg^^} = ${libline}" >> ${file_name_append}
    echo "INC${namelok_pkg^^} = -I${LIPaS_INC}" >> ${file_name_append}
     
    status_return=0    
 }
-
-
 
 # The End of All Things (op. cit.)
