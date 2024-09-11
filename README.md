@@ -31,8 +31,8 @@ method="autotools"
 
 Currently the different possibilities are:
 ```toml
-lang="CC|FF"
-method="autotools|make"
+lang="CC/FF"
+method="autotools/make"
 ```
 If `make` is chosen, then an option `mkfile` should be provided with the only option so far
 ```toml
