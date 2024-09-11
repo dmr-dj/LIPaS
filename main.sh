@@ -726,6 +726,6 @@ then
   rm -f ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${tmpToTrash}
 fi
 
-# rm -fR ${tempDIR}
+rm -fR ${tempDIR}
 
 # The End of All Things (op. cit.)
