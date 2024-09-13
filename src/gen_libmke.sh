@@ -30,7 +30,8 @@ function gen_liblines () {
    libline=""
    for elemnt in ${actual_lib_name}
    do
-     libline="${libline} -Wl,-rpath=${lib_pkgname_path} -L${lib_pkgname_path} -l${elemnt:3}"
+     # libline="${libline} -Wl,-rpath=${lib_pkgname_path} -L${lib_pkgname_path} -l${elemnt:3}"
+     libline="${libline} -Wl,-rpath=${lib_pkgname_path} -L${lib_pkgname_path} -l${elemnt%%.*}"
    done 
    # Construct the lines in the form:
       
