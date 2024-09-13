@@ -69,15 +69,15 @@ msn() {
 
 
 vrb() {
-  if [ ${verbose} -eq 1 ] 
-  then 
+  if [ ${verbose} -eq 1 ]
+  then
      filler=$( seq -s ' ' 1 100 | tr -dc ' ' )
      string=" ${1}"
      msg_lok=$string${filler:${#string}}
      msg "${GRAY} + ${msg_lok:0:35} + ${NOFORMAT}"
   #~ else
      #pass
-  fi	
+  fi
 }
 
 gui() {
@@ -110,11 +110,11 @@ function get_valuekey () {
   local my_value
 
   if [[ ${1} =~ (.*)=(.*) ]]
-  then 
+  then
     my_value=$( trim ${BASH_REMATCH[2]} )
     echo ${my_value}
     return 0
-  else 
+  else
     return 1
   fi
 }
@@ -124,11 +124,11 @@ function get_keyvalue () {
   local my_value
 
   if [[ ${1} =~ (.*)=(.*) ]]
-  then 
+  then
     my_value=$( trim ${BASH_REMATCH[1]} )
     echo ${my_value}
     return 0
-  else 
+  else
     return 1
   fi
 }
@@ -137,18 +137,18 @@ display_version() {
 
   msg "${prog_name} version ${script_version}"
   exit
-  
+
 }
 
 function reinitAll () {
-  
+
   gui "You are about to delete completly"
   gui "     the local LIPaS install     "
   gui "Are you sure that you want       "
   iui "       to continue?  [Y/N]       "
-  
-  read xyzzy 
-  
+
+  read xyzzy
+
   if [[ ! ${xyzzy} == "Y" ]] ; then
     gui "Not deleted anything ..."
     die ""
@@ -157,12 +157,12 @@ function reinitAll () {
     rm -fR ${LIPaS_ROOT}/*
     rm -fR ${ENV_DIR}/*
     die "Full LIPaS delete done"
-  fi  
-  
+  fi
+
 }
 
 parse_params() {
-	
+
   # Define the possible options
   local SHORT=h,v,D:,p:,R
   local LONG=help,verbose,DeleteEnv:,no-color,version,--pkg-inst:,--reinitAll
@@ -174,7 +174,7 @@ parse_params() {
     case "${1-}" in
     -h | --help) usage ;;
     -v | --verbose) verbose=1 ;;
-    -D | --DeleteEnv) 
+    -D | --DeleteEnv)
       DELETE_ENV=${2}
       shift
     ;;
@@ -185,14 +185,18 @@ parse_params() {
       do
         PKG_TO_INSTALL+=" ${pkg}"
       done
-      IFS=${oldIFS}      
+      IFS=${oldIFS}
       shift
     ;;
-    -R | --reinitAll) 
+    -g | --gen_mkfile)
+       # You need to provide a toml file with at minimum the dependencies
+       GEN_MKFILE_TOML="${2}"
+    ;;
+    -R | --reinitAll)
       reinitAll_flag="Y"
-    ;;    
+    ;;
     --no-color) NO_COLOR=1 ;;
-    --version) display_version ;;    
+    --version) display_version ;;
     -?*) die "Unknown option: ${1}" ;;
     --)
       shift;
@@ -205,15 +209,15 @@ parse_params() {
   else # no specific arguments, running default
     vrb "Running with default arguments"
   fi
- 
+
   return 0
 }
 
 function split_string_to_array () {
 
    arrayid=(`echo "$1" | tr "$2" " "`)
-   
-		
+
+
 } # end function
 
 # from: https://www.baeldung.com/linux/command-line-progress-bar
@@ -226,7 +230,7 @@ function show_progress {
     current="$1"
     total="$2"
 
-    # calculate the progress in percentage 
+    # calculate the progress in percentage
     percent=$(bc <<< "scale=$bar_percentage_scale; 100 * $current / $total" )
     # The number of done and todo characters
     done=$(bc <<< "scale=0; $bar_size * $percent / 100" )
@@ -254,7 +258,7 @@ check_dir_and_mkdir(){
     # Soft creating the ROOT sub_directories if they do not exist
     mkdir -p ${1}
   fi
-	
+
 }
 
 setup_colors
@@ -304,7 +308,7 @@ fi
 
 if [ -d ${ENV_DIR} ]
 then
-  
+
   readarray -t EXISTING_DIRS < <(find ${ENV_DIR}/. -maxdepth 1 -type d -printf '%P\n')
   for conf in ${EXISTING_DIRS[@]}
   do
@@ -313,17 +317,17 @@ then
      then
        rm -fR ${ENV_DIR}/${conf}
        die "${conf} environnement deleted"
-     elif [[ "${DELETE_ENV}" =~ "all" ]] 
+     elif [[ "${DELETE_ENV}" =~ "all" ]]
      then
        rm -fR ${ENV_DIR}/${conf}
        rm -fR ${PKG_DATABASE}/*.ok
        rm -fR ${LIPaS_ROOT}/*
        die "Complete cleanup of LIPaS installation done"
-     fi     
+     fi
   done
 else
 
-  # Creating environnement directory 
+  # Creating environnement directory
   mkdir -p ${ENV_DIR}
 
 fi
@@ -334,7 +338,7 @@ vrb "=======   LOCATING CONFIGS   ======="
 # Configs are dirs that are matching partially or completely the HOSTNAME variable in CONFIGS_DIR variable in LIPaS.param
 CONF_DIR=""
 
-if [ -d ${MAIN_dir}/${CONFIGS_DIR}/${COMPUTER_NAME} ] 
+if [ -d ${MAIN_dir}/${CONFIGS_DIR}/${COMPUTER_NAME} ]
 then
 
     vrb "Detected a configuration DIR"
@@ -376,10 +380,10 @@ else
 
     vrb "Configuration DIR not detected"
     vrb "No possibility to go further"
-    vrb "  in current version of ${prog_name}" 
+    vrb "  in current version of ${prog_name}"
 
     die "  Execution of ${prog_name} failed   "
-    
+
 fi
 
 vrb "=======  DEFINING COMPILERS  ======="
@@ -432,7 +436,7 @@ then
   (( max_index = ${indx_conf} - 1 ))
   gui " "
   iui "Your choice? [0-${max_index}]"
-  read xyzzy 
+  read xyzzy
   if [[ ! ${xyzzy} =~ ^[0-${max_index}]+$ ]] ; then
     die "Choice not understood"
   else
@@ -445,16 +449,16 @@ fi
 msg "  ===  Analysing Environnements  ====== "
 
    conf=${conf_to_build[${CHOSEN_CONF}]}
-      
+
    FC_line=$(grep "FC" ${conf})
    declare -x ${FC_line}
-   
+
    FC_version=$(${FC} --version | grep -o "[0-9]*\.[0-9]\.[0-9]" | tail -1)
-   
+
    vrb "${env_to_build[${CHOSEN_CONF}]} env FC = ${FC_version}"
-      
+
    cd ${MAIN_dir}
-   
+
    if [ -d ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]} ]
    then
 
@@ -466,20 +470,7 @@ msg "  ===  Analysing Environnements  ====== "
 
      local_file_towork="${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_ENVS_FILE}"
 
-     readarray -t vars_to_set < <(cat ${local_file_towork} | grep --null .*=.* | cut --delimiter== -f1)  
-     readarray -t value_to_set < <(cat ${local_file_towork} | grep --null -n .*=.* | cut --delimiter== -f2-)
-
-     for (( j = 0 ; j < ${#vars_to_set[@]} ; j++ ))
-     do
-        vrb "Setting: ${vars_to_set[j]// /}"
-        export "${vars_to_set[j]// /}=${value_to_set[j]}"
-     done     
-     
-     vrb "Loading environnement | ${GEN_LIBS_FILE}"
-     
-     local_file_towork="${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}"
-
-     readarray -t vars_to_set < <(cat ${local_file_towork} | grep --null .*=.* | cut --delimiter== -f1)  
+     readarray -t vars_to_set < <(cat ${local_file_towork} | grep --null .*=.* | cut --delimiter== -f1)
      readarray -t value_to_set < <(cat ${local_file_towork} | grep --null -n .*=.* | cut --delimiter== -f2-)
 
      for (( j = 0 ; j < ${#vars_to_set[@]} ; j++ ))
@@ -488,25 +479,38 @@ msg "  ===  Analysing Environnements  ====== "
         export "${vars_to_set[j]// /}=${value_to_set[j]}"
      done
 
-   else  
+     vrb "Loading environnement | ${GEN_LIBS_FILE}"
 
-     source ${MAIN_dir}/${MODULES_D}/test-FC_compiler.sh      
+     local_file_towork="${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}"
+
+     readarray -t vars_to_set < <(cat ${local_file_towork} | grep --null .*=.* | cut --delimiter== -f1)
+     readarray -t value_to_set < <(cat ${local_file_towork} | grep --null -n .*=.* | cut --delimiter== -f2-)
+
+     for (( j = 0 ; j < ${#vars_to_set[@]} ; j++ ))
+     do
+        vrb "Setting: ${vars_to_set[j]// /}"
+        export "${vars_to_set[j]// /}=${value_to_set[j]}"
+     done
+
+   else
+
+     source ${MAIN_dir}/${MODULES_D}/test-FC_compiler.sh
      test_FC_compiler
-   
+
      source ${MAIN_dir}/${MODULES_D}/check_NC-env.sh
      check_NC-env
-   
-     source ${MAIN_dir}/${MODULES_D}/test-NC_Fortran.sh   
+
+     source ${MAIN_dir}/${MODULES_D}/test-NC_Fortran.sh
      test-NC_Fortran
-     
+
      mkdir -p ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
-      
+
      cd ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}
-    
+
      vrb "Generating .pkg"
 
      echo "FC = ${FC}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_ENVS_FILE}
-     
+
      CC_line=$(grep "CC" ${conf})
      vrb "CC as ${CC_line}"
      if [ "${CC_line}" ]
@@ -514,16 +518,16 @@ msg "  ===  Analysing Environnements  ====== "
        declare -x ${CC_line}
        echo "CC = ${CC}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_ENVS_FILE}
      fi
-     
+
      vrb "Generating .libs"
-     
+
      echo "INCNETCDF = ${INCNETCDF}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}
      echo "LIBNETCDF = ${LIBNETCDF}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}
-     
+
    fi
-  
+
 # Adding the checking of the env.dict
-   
+
 if [ -f ${MAIN_dir}/${DICT_DIR}/${env_to_build[${CHOSEN_CONF}]}.dict ]
 then
    vrb "Found dictionnary file for ${env_to_build[${CHOSEN_CONF}]}"
@@ -531,9 +535,9 @@ then
 else
    die "Could not find dictionnary file for ${env_to_build[${CHOSEN_CONF}]}"
 fi
-            
-msg " +  Generating ${env_to_build[${CHOSEN_CONF}]} environnement ...   + ${GREEN} [Done] ${NOFORMAT}" 
-   
+
+msg " +  Generating ${env_to_build[${CHOSEN_CONF}]} environnement ...   + ${GREEN} [Done] ${NOFORMAT}"
+
 
 cd ${MAIN_dir}
 
@@ -541,10 +545,10 @@ cd ${MAIN_dir}
 
 # Here a first version of installing any library in the base config
 # Steps are:
-# 	=> retreive
-# 		-> method / git = git clone in tmp / wget ...
+#   => retreive
+#     -> method / git = git clone in tmp / wget ...
 #   => build
-#       -> depends on language/method : autotools = configure ; make ; check success 
+#       -> depends on language/method : autotools = configure ; make ; check success
 #   => install
 #       -> in general a form of make install
 
@@ -561,7 +565,7 @@ declare -a LIST_PKGS_TO_INSTALL=("makedepf90")
 if [ -v PKG_TO_INSTALL ]
 then
 
-# Need the code here to check correctly the dependencies and ordering before inputing in the main loop ... 
+# Need the code here to check correctly the dependencies and ordering before inputing in the main loop ...
 
 for PKGSINSTALL in ${PKG_TO_INSTALL}
 do
@@ -594,7 +598,7 @@ do
       do
         DEP_PKGS+=" ${dep}"
       done
-      IFS=${oldIFS}      
+      IFS=${oldIFS}
 
       vrb "Dependencies found: ${DEP_PKGS}"
       DEP_PKGS+=" ${PKGSINSTALL}"
@@ -664,7 +668,7 @@ TODO="pkginfo"
 
 # The function Texists uses directly the global variable AARRAY_TEXIST
 
-# Technique proposed by Florian Feldhaus 
+# Technique proposed by Florian Feldhaus
 # from https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
 
 if Texists "${TODO}" in "$(declare -p TOML_TABLE_PKG)"
@@ -703,12 +707,12 @@ else
     then
       die "${TODO} ${PKG_NAME} failed"
     else
-      vrb "${TODO}     lib ${PKG_NAME} [OK]" 
+      vrb "${TODO}     lib ${PKG_NAME} [OK]"
     fi
   done
 fi
 
-msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}" 
+msg " +  Installing ${PKG_NAME} ...          + ${GREEN} [Done] ${NOFORMAT}"
 
 
 done # Loop on the list of pkg to install
