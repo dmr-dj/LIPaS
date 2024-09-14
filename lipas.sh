@@ -24,6 +24,12 @@ MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
 verbose=0
 
+# Sourcing utilities and base config
+
+source ./LIPaS.params
+source ${MAIN_dir}/${MODULES_D}/colors_and_UI.sh
+
+
 usage() {
   cat <<EOF
 Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [--version] [-D env_name] [-p package_name]
@@ -45,53 +51,17 @@ EOF
   exit
 }
 
+display_version() {
+
+  msg "${prog_name} version ${script_version}"
+  exit
+
+}
+
 cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
   # script cleanup here
   #~ msg "Died through cleanup ..."
-}
-
-setup_colors() {
-  if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
-    NOFORMAT='\033[0m' RED='\033[0;31m' GREEN='\033[0;32m' ORANGE='\033[0;33m' BLUE='\033[0;34m' PURPLE='\033[0;35m' CYAN='\033[0;36m' YELLOW='\033[1;33m' GRAY='\033[38;5;8m'
-  else
-    NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW='' GRAY=''
-  fi
-}
-
-msg() {
-  echo >&2 -e "${1-}"
-}
-
-msn() {
-  echo >&2 -e "${1-}"
-}
-
-
-vrb() {
-  if [ ${verbose} -eq 1 ]
-  then
-     filler=$( seq -s ' ' 1 100 | tr -dc ' ' )
-     string=" ${1}"
-     msg_lok=$string${filler:${#string}}
-     msg "${GRAY} + ${msg_lok:0:35} + ${NOFORMAT}"
-  #~ else
-     #pass
-  fi
-}
-
-gui() {
-   filler=$( seq -s ' ' 1 100 | tr -dc ' ' )
-   string=" ${1}"
-   msg_lok=$string${filler:${#string}}
-   msg "${ORANGE} + ${msg_lok:0:35} + ${NOFORMAT}"
-}
-
-iui() {
-   filler=$( seq -s ' ' 1 100 | tr -dc ' ' )
-   string=" ${1}"
-   msg_lok=$string${filler:${#string}}
-   msn "${ORANGE} + ${msg_lok:0:35} + ${NOFORMAT}"
 }
 
 die() {
@@ -103,41 +73,6 @@ die() {
 
 function trim () {
   echo ${1} | awk '{$1=$1;print}'
-}
-
-function get_valuekey () {
-  # Send back the value from a key/value set
-  local my_value
-
-  if [[ ${1} =~ (.*)=(.*) ]]
-  then
-    my_value=$( trim ${BASH_REMATCH[2]} )
-    echo ${my_value}
-    return 0
-  else
-    return 1
-  fi
-}
-
-function get_keyvalue () {
-  # Send back the key from a key/value set
-  local my_value
-
-  if [[ ${1} =~ (.*)=(.*) ]]
-  then
-    my_value=$( trim ${BASH_REMATCH[1]} )
-    echo ${my_value}
-    return 0
-  else
-    return 1
-  fi
-}
-
-display_version() {
-
-  msg "${prog_name} version ${script_version}"
-  exit
-
 }
 
 function reinitAll () {
@@ -262,8 +197,6 @@ check_dir_and_mkdir(){
 }
 
 setup_colors
-
-source ./LIPaS.params
 
 parse_params "$@"
 
@@ -565,7 +498,7 @@ declare -a LIST_PKGS_TO_INSTALL=("makedepf90")
 if [ -v PKG_TO_INSTALL ]
 then
 
-# Need the code here to check correctly the dependencies and ordering before inputing in the main loop ...
+# [TODO] Need the code here to check correctly the dependencies and ordering before inputing in the main loop ...
 
 for PKGSINSTALL in ${PKG_TO_INSTALL}
 do
@@ -578,6 +511,7 @@ do
   then
     read-toml pkgs-db/${PKGSINSTALL}.toml
   else
+    # [TODO] Here could design something if a toml file is provided as input to a flag to be determined
     die "Unable to install ${PKGSINSTALL}, no toml file"
   fi
 

@@ -19,6 +19,7 @@
 # This script uses Associative Arrays introduced in bash v4
 # [TODO] check that indeed we are running with bash >= 4
 
+source key_value_funcs.sh
 
 function list-make-targets (){
 	
