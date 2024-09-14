@@ -9,6 +9,9 @@ MODULES_D="src"
 # == Location of the dictionnaries for environnements
 DICT_DIR="dicts"
 
+# == Location of the standard makefiles for Makefile generation
+MAKEFILE_STD="std_mkefiles"
+
 # == Standard location to read config files ==
 CONFIGS_DIR="configs"
 

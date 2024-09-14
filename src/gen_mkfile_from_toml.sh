@@ -81,7 +81,15 @@ function gen_mkfile_from_toml () {
 
    # If I survived the previous, I have a list of upper case packages that can be used
 
+   # Need to process the Makefile.LIPaS and the make.macros.LIPaS files accordingly
+   # For now (2024-09-14), hardwired similarly as in build_pkg.sh
+   # Should be moved to a generic handling routine that convert those keys @***@ in something useable
 
+
+   for lipas_file in $(ls ${MAIN_dir}/${MAKEFILE_STD}/${lang_mkef}/*.LIPaS)
+   do
+     echo "Processing ${lipas_file}"
+   done
 
 
    unset tomlAA
