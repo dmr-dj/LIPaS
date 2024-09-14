@@ -32,20 +32,21 @@ source ${MAIN_dir}/${MODULES_D}/colors_and_UI.sh
 
 usage() {
   cat <<EOF
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [--version] [-D env_name] [-p package_name]
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [--version] [-D env_name] [-p package_name] [-g toml_file_name]
 
 This is LIPaS v${script_version}
 
 Available options:
 
--h, --help      Print this help and exit
--v, --verbose   Print script debug info
--p, --pkg_inst  Install the package with current name (e.g. ncio)
+-h, --help       Print this help and exit
+-v, --verbose    Print script debug info
+-p, --pkg_inst   Install the package with current name (e.g. ncio)
+-g, --gen_mkfile Generate a compatible Makefile with the given toml conf file
 
 
---version       Print the current version of the script
--D, --DeleteEnv Delete the environnement with given name (e.g. gnu)
--R, --reinitAll Removal of the whole LIPaS installation
+--version        Print the current version of the script
+-D, --DeleteEnv  Delete the environnement with given name (e.g. gnu)
+-R, --reinitAll  Removal of the whole LIPaS installation
 
 EOF
   exit
@@ -196,10 +197,17 @@ check_dir_and_mkdir(){
 
 }
 
+
+# MAIN section starts here
+# ########################
+
+# Initialize color names
 setup_colors
 
+# Parse argument list
 parse_params "$@"
 
+# Header printing
 msg "  ===================================== "
 msg " +                                     +"
 msg " +              LIPaS                  +"
@@ -269,6 +277,9 @@ fi
 vrb "=======   LOCATING CONFIGS   ======="
 
 # Configs are dirs that are matching partially or completely the HOSTNAME variable in CONFIGS_DIR variable in LIPaS.param
+# They are used to specify the configs on the machine for the compiler. Multiple configurations can be found in one matching CONFIG_DIR.
+# Example: configs/sadira061/conf.gnu specifies the configuration for the gnu compiler series on machine sadira061 computer
+
 CONF_DIR=""
 
 if [ -d ${MAIN_dir}/${CONFIGS_DIR}/${COMPUTER_NAME} ]
@@ -293,6 +304,7 @@ else
 
 fi
 
+# From there, if I have a CONF_DIR, I will look up the number of individual configuration files.
 if [ -d ${CONF_DIR} ]
 then
 
@@ -319,8 +331,9 @@ else
 
 fi
 
-vrb "=======  DEFINING COMPILERS  ======="
+# Next we analyse the configuration that is found in the CONFIG_DIR/LIST_CONF_FILES
 
+vrb "=======  DEFINING COMPILERS  ======="
 
 env_to_build=()
 conf_to_build=()
@@ -353,6 +366,7 @@ vrb "I found ${#conf_to_build[@]} environnement(s)"
 
 declare -i CHOSEN_CONF=0
 
+# If the computer has more than one configuration environnement possible, define which one is meant to be worked with.
 if [ ${#conf_to_build[@]} -gt 1 ]
 then
 
@@ -377,6 +391,7 @@ then
   fi
 fi
 
+# Now the type of environnement is defined, analysing the configuration at present
 # Retreive the compiler /version ...
 
 msg "  ===  Analysing Environnements  ====== "
@@ -459,6 +474,10 @@ msg "  ===  Analysing Environnements  ====== "
 
    fi
 
+
+# From the environnement analysis before, the variables contained in previously generated gen.env and gen.libs
+#      is set as variables in the execution space.
+
 # Adding the checking of the env.dict
 
 if [ -f ${MAIN_dir}/${DICT_DIR}/${env_to_build[${CHOSEN_CONF}]}.dict ]
@@ -472,7 +491,72 @@ fi
 msg " +  Generating ${env_to_build[${CHOSEN_CONF}]} environnement ...   + ${GREEN} [Done] ${NOFORMAT}"
 
 
+
 cd ${MAIN_dir}
+
+# From here, branching should be proposed on the base of installing / using the environnement.
+
+
+# Function to read the toml files ...
+source ${MAIN_dir}/${MODULES_D}/read-toml.sh
+
+#~ # Hashtable type functions handling
+#~ source ${MAIN_dir}/${MODULES_D}/key_value_funcs.sh
+
+## LIPaS PREVIOUS INSTALLATION USAGE
+
+# Foreseen usage:
+#  1. Generation of a Makefile compatible with a set of packages within env (needs a toml file out of the path)
+#  2.
+
+
+if [ -v GEN_MKFILE_TOML ]
+then
+
+  if [ -f ${GEN_MKFILE_TOML} ]
+  then # workable file potentially
+
+    # I am provided a toml file with the request for a compatible Makefile
+    vrb "Trying gen. Makefile from ..."
+    vrb "     ${GEN_MKFILE_TOML}"
+
+    # Reading the provided TOML file
+    # The function read-toml uses directly the global variable TOML_TABLE_PKG
+    declare -A TOML_TABLE_PKG
+    read-toml ${GEN_MKFILE_TOML}
+
+    # Minimum information needed to generate a makefile from scratch is:
+    #
+    # build.lang           => language to set the compiler
+    # build.location       => where are the sources to be compiled
+    # dependencies.pkgs    => to set the libraries path
+    # Optional, if FORTRAN => default makedepf90 to generate dependencies (path needed)
+    # Defaults path of the environnement used, should be set as global variables
+
+    #~ display_associative_array "$(declare -p TOML_TABLE_PKG)"
+
+
+    source ${MAIN_dir}/${MODULES_D}/gen_mkfile_from_toml.sh
+    gen_mkfile_from_toml "$(declare -p TOML_TABLE_PKG)"
+
+  else
+    # Not provided with a file, exiting
+    die "Option -g needs an existing TOML file"
+
+  fi
+
+  exit 0
+
+fi
+
+# Cleanup the global variables before further use
+#
+unset TOML_TABLE_PKG
+
+
+
+
+## PACKAGE INSTALLATION CODE
 
 # From there, the code for setting up the base configuration
 
@@ -484,9 +568,6 @@ cd ${MAIN_dir}
 #       -> depends on language/method : autotools = configure ; make ; check success
 #   => install
 #       -> in general a form of make install
-
-
-source ${MAIN_dir}/${MODULES_D}/read-toml.sh
 
 # This package HAS to be installed. LIPaS depends on it
 declare -a LIST_PKGS_TO_INSTALL=("makedepf90")

@@ -42,4 +42,18 @@ function get_keyvalue () {
   fi
 }
 
+function display_associative_array (){
+
+    # Technique proposed by Florian Feldhaus
+    # from https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
+    eval "declare -A tomlinput="${1#*=}
+
+    # To check the hash table content
+    for i in "${!tomlinput[@]}"
+    do
+      echo "${i} ${tomlinput[$i]}"
+    done
+}
+
+
 # The End of All Things (op. cit.)
