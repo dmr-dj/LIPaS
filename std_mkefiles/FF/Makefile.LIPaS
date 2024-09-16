@@ -1,3 +1,9 @@
+#~   THIS IS A PRE-GENERATION FILE, DO NOT EDIT MANUALLY
+#~ ---
+#~ --- dmr New make.macros input version.
+#~ --- dmr Cleaned up and simplified to bare necessity
+#~ ---
+
 DIR = @SOURCE_DIR_PATH@ 
 
 include make.macros
