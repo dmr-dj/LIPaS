@@ -227,6 +227,7 @@ msg ""
 LIPaS_BIN="${LIPaS_ROOT}/bin"
 LIPaS_INC="${LIPaS_ROOT}/inc"
 LIPaS_LIB="${LIPaS_ROOT}/lib"
+LIPaS_EXT="${LIPaS_ROOT}/extgen"
 
 
 # Looking up whether a previous install exists
@@ -234,6 +235,7 @@ LIPaS_LIB="${LIPaS_ROOT}/lib"
 check_dir_and_mkdir "${LIPaS_BIN}"
 check_dir_and_mkdir "${LIPaS_INC}"
 check_dir_and_mkdir "${LIPaS_LIB}"
+check_dir_and_mkdir "${LIPaS_EXT}"
 
 
 # Check if we are deleting everything ...

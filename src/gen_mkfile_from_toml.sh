@@ -28,7 +28,7 @@ function gen_mkfile_from_toml () {
    # from https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
    eval "declare -A tomlAA="${1#*=}
 
-   display_associative_array "$(declare -p tomlAA)"
+   # display_associative_array "$(declare -p tomlAA)"
 
    # Checking that I have what I need:
 
@@ -81,16 +81,58 @@ function gen_mkfile_from_toml () {
 
    # If I survived the previous, I have a list of upper case packages that can be used
 
+   hereiam=$(pwd)
+
    # Need to process the Makefile.LIPaS and the make.macros.LIPaS files accordingly
    # For now (2024-09-14), hardwired similarly as in build_pkg.sh
    # Should be moved to a generic handling routine that convert those keys @***@ in something useable
+   
 
+   # First parse the file(s) to check for the keys that need feeding
+   declare -A keys_to_PROCESS
 
    for lipas_file in $(ls ${MAIN_dir}/${MAKEFILE_STD}/${lang_mkef}/*.LIPaS)
    do
-     echo "Processing ${lipas_file}"
-   done
 
+      mkefile_lipas="${lipas_file}"
+      mkefile_realp=$(realpath ${mkefile_lipas})
+      mkefile_reald=$(dirname ${mkefile_realp})
+      vrb "Scan variables in $(basename ${mkefile_lipas})"
+
+      cd ${mkefile_reald}
+
+      mkefile=$(basename ${mkefile_lipas})
+      dctfile="${DICT_FOR_ENV}"
+
+      readarray -t mkefile_array < <(cat ${mkefile} | grep -o \@.*\@)
+
+      # display_associative_array "$(declare -p mkefile_array)"
+      # display_associative_array "$(declare -p dctfile_array)"
+
+      for (( j = 0 ; j < ${#mkefile_array[@]} ; j++ ))
+      do
+          # That line put the key to an empty value, if key did not exist, add it
+          keys_to_PROCESS[${mkefile_array[$j]}]=""
+      done
+
+      cd ${hereiam}
+
+   done # On list makefiles to process
+
+   # From there, keys_to_PROCESS is a unique list of keys that need to be fed with content
+   # display_associative_array "$(declare -p keys_to_PROCESS)"
+
+   # Next I need to loop over those keys and find the corresponding content
+   source ${MAIN_dir}/${MODULES_D}/get_env_value_for_key.sh
+ 
+   for key_val in ${!keys_to_PROCESS[@]}
+   do
+	# Create a temporary work file
+	randomfile_name="keyvalue-$(hexdump -n 8 -v -e '/1 "%02X"' /dev/urandom)"
+	touch ${tempDIR}/${randomfile_name}
+        # Call the hardwiring function that does it all
+        get_env_value_for_key ${key_val}
+   done
 
    unset tomlAA
 
