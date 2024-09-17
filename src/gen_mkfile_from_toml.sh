@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-source ${MAIN_dir}/${MODULES_D}/key_value_funcs.sh
+# source ${MAIN_dir}/${MODULES_D}/key_value_funcs.sh
 
 function gen_mkfile_from_toml () {
 
@@ -81,6 +81,9 @@ function gen_mkfile_from_toml () {
 
    # If I survived the previous, I have a list of upper case packages that can be used
 
+   # Here should be the creation of the INC and LIB lines based on the previous
+   # [TODO]
+
    hereiam=$(pwd)
 
    # Need to process the Makefile.LIPaS and the make.macros.LIPaS files accordingly
@@ -131,7 +134,7 @@ function gen_mkfile_from_toml () {
 	randomfile_name="keyvalue-$(hexdump -n 8 -v -e '/1 "%02X"' /dev/urandom)"
 	touch ${tempDIR}/${randomfile_name}
         # Call the hardwiring function that does it all
-        get_env_value_for_key ${key_val}
+        get_env_value_for_key ${key_val} ${loct_srcs} "${INC_LINE:-None}" "${LIB_LINE:-None}"
    done
 
    unset tomlAA

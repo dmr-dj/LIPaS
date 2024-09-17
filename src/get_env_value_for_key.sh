@@ -17,10 +17,14 @@
 
 function get_env_value_for_key () {
   local keysearch=${1}
+  local targtsrcs=${2}
+  local inclibdep=${3}
+  local liblibdep=${4}
   
   local doneIt=0
   
   vrb "Processing key ${keysearch}"
+  echo "Received:: ${inclibdep} ; ${liblibdep}"
   # Hardwired for now, could do much better
   case ${keysearch//\@/} in
        FORTRAN_COMPILER_PATH)
@@ -48,7 +52,8 @@ function get_env_value_for_key () {
        ;;
        MAKEDEPF90_PATH)
          # Setting the default Makedepf90 path for all FORTRAN
-	 vrb "Default path for makedepf90"
+	 vrb "Default path for makedepf90: "
+	 vrb "${LIPaS_BIN}/makedepf90"
        ;;
        PKG_NAME)
          # The One and Only package name
@@ -56,7 +61,7 @@ function get_env_value_for_key () {
        ;;
        SOURCE_DIR_PATH)
          # Path to the sources that will be compiled, relative to Makefile
-	 vrb "Sources are in: "
+	 vrb "Sources are in: ${targtsrcs}"
        ;;
        *)
          die "Unkown key from env ${keysearch}"
