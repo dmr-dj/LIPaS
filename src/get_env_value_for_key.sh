@@ -39,7 +39,7 @@ function get_env_value_for_key () {
        SPECIFIC_GEN_LIB)
          # This is the file that we are generating, so make that name
 	 vrb "Output gen_lib is: "
-	 echo "${LIPaS_EXT}"
+	 echo "${LIPaS_EXT}/${PKG_NAME}.libinc"
          value_dctfile="${CC}"
        ;;
        LIST_OF_LIBLIBS)

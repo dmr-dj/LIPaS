@@ -56,6 +56,7 @@ function gen_mkfile_from_toml () {
     esac
 
    declare -A PKGS_INCSLIBS=()
+   declare -A PKGS_LIBSLIBS=()
 
    # We know the language, carry on
    if [ -z ${reqs_deps} ]
@@ -70,7 +71,25 @@ function gen_mkfile_from_toml () {
         if [ -f "${PKG_DATABASE}/${PKG_NAME}.ok" ]
         then # yes!
           vrb "Using installed ${PKG_NAME^^}"
-          PKGS_INCSLIBS+=("${PKG_NAME^^}") # Keeping the package uppercase since this is its profile for INC and LIB
+          
+   # LIBLINES already exist in the ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/gen.libs file
+   # Just create an appropriate file content with the extracted lines
+   #    ... to be used in the  ${LIPaS_EXT}/${PKG_NAME}.libinc
+   #
+          olderIFS=${IFS}
+          IFS="!"
+	  
+	  key_val="INC${PKG_NAME^^}"
+	  PKGS_INCSLIBS+=("${key_val}") # Keeping the package uppercase since this is its profile for INC
+	  libline_lok=$(grep "${key_val}" ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/gen.libs)
+          PKGS_INCSLIBS["${key_val}"]="${libline_lok}"
+
+	  key_val="LIB${PKG_NAME^^}"
+	  PKGS_LIBSLIBS+=("${key_val}") # Keeping the package uppercase since this is its profile for LIB
+	  libline_lok=$(grep "${key_val}" ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/gen.libs)
+          PKGS_LIBSLIBS["${key_val}"]="${libline_lok}"
+          IFS=${olderIFS}
+
         else # no!
           # Cannot satisfy dependence, die
           die "Requested ${PKG_NAME} dependence does not seem to be installed, rerun LIPaS with -p ${PKG_NAME}"
@@ -80,9 +99,6 @@ function gen_mkfile_from_toml () {
    fi
 
    # If I survived the previous, I have a list of upper case packages that can be used
-
-   # Here should be the creation of the INC and LIB lines based on the previous
-   # [TODO]
 
    hereiam=$(pwd)
 
