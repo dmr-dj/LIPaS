@@ -35,6 +35,7 @@ function gen_mkfile_from_toml () {
    local lang_mkef=${tomlAA["build.lang"]//\"}
    local loct_srcs=${tomlAA["build.location"]//\"}
    local reqs_deps=${tomlAA["dependencies.pkgs"]//\"}
+   local the_wname=${tomlAA["pkginfo.name"]//\"}
 
     case ${lang_mkef} in
 
@@ -74,7 +75,7 @@ function gen_mkfile_from_toml () {
           
    # LIBLINES already exist in the ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/gen.libs file
    # Just create an appropriate file content with the extracted lines
-   #    ... to be used in the  ${LIPaS_EXT}/${PKG_NAME}.libinc
+   #    ... to be used in the  ${LIPaS_EXT}/${the_wname}.libinc
    #
           olderIFS=${IFS}
           IFS="!"
@@ -98,7 +99,19 @@ function gen_mkfile_from_toml () {
       IFS=${oldIFS}
    fi
 
-   # If I survived the previous, I have a list of upper case packages that can be used
+   # If I survived the previous, I have a list of upper case packages that can be used and two arrays with the necessary command INC/LIB lines
+   #
+   
+   rm -f ${LIPaS_EXT}/${the_wname}.libinc
+
+   for key_val in ${!PKGS_INCSLIBS[@]}
+   do
+       echo ${PKGS_INCSLIBS[${key_val}]} >> ${LIPaS_EXT}/${the_wname}.libinc
+   done
+   for key_val in ${!PKGS_LIBSLIBS[@]}
+   do
+       echo ${PKGS_LIBSLIBS[${key_val}]} >> ${LIPaS_EXT}/${the_wname}.libinc
+   done
 
    hereiam=$(pwd)
 

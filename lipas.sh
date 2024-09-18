@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.5.4"
+script_version="0.5.5"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -535,7 +535,8 @@ then
     # Optional, if FORTRAN => default makedepf90 to generate dependencies (path needed)
     # Defaults path of the environnement used, should be set as global variables
 
-    #~ display_associative_array "$(declare -p TOML_TABLE_PKG)"
+    # source ${MAIN_dir}/${MODULES_D}/key_value_funcs.sh
+    # display_associative_array "$(declare -p TOML_TABLE_PKG)"
 
 
     source ${MAIN_dir}/${MODULES_D}/gen_mkfile_from_toml.sh

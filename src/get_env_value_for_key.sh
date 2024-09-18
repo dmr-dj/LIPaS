@@ -24,7 +24,7 @@ function get_env_value_for_key () {
   local doneIt=0
   
   vrb "Processing key ${keysearch}"
-  echo "Received:: ${inclibdep} ; ${liblibdep}"
+  
   # Hardwired for now, could do much better
   case ${keysearch//\@/} in
        FORTRAN_COMPILER_PATH)
