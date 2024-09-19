@@ -4,7 +4,7 @@
 #~ --- dmr Cleaned up and simplified to bare necessity
 #~ ---
 
-DIR = @SOURCE_DIR_PATH@ 
+DIR = @SOURCE_DIR_PATH@
 
 include make.macros
 
@@ -52,6 +52,6 @@ strict: clean @PKG_NAME@.x
 # resulting program when running 'make'
 
 depend .depend:
-		$(FMAKEDEPEND) -o @PKG_NAME@.x $(DIR)/*.[f|F]* > .depend
+		$(FMAKEDEPEND) -o @PKG_NAME@.x $(DIR)/*.f* > .depend
 
 

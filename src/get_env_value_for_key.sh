@@ -73,7 +73,8 @@ function get_env_value_for_key () {
        ;;
   esac
 
-  echo "${value_dctfile}" > ${tem_file_name}
+  # Return the value, while filtering out the front and back blanks
+  echo "${value_dctfile}" | sed 's%^[[:blank:]]*%%;s%[[:blank:]]*$%%' > ${tem_file_name}
   return
 }
 
