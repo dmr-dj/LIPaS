@@ -535,12 +535,11 @@ then
     # Optional, if FORTRAN => default makedepf90 to generate dependencies (path needed)
     # Defaults path of the environnement used, should be set as global variables
 
-    # source ${MAIN_dir}/${MODULES_D}/key_value_funcs.sh
+    # source ${MAIN_dir}/${MODULES_D}/key_value_funcs.she
     # display_associative_array "$(declare -p TOML_TABLE_PKG)"
 
-
     source ${MAIN_dir}/${MODULES_D}/gen_mkfile_from_toml.sh
-    gen_mkfile_from_toml "$(declare -p TOML_TABLE_PKG)"
+    gen_mkfile_from_toml "$(declare -p TOML_TABLE_PKG)" ${env_to_build[${CHOSEN_CONF}]}
     SOFTWNAME="${TOML_TABLE_PKG["pkginfo.name"]//\"}"
   else
     # Not provided with a file, exiting
@@ -549,6 +548,8 @@ then
   fi
 
   msg " +  Generation Makefile ${SOFTWNAME} ...   + ${GREEN} [Done] ${NOFORMAT}"
+  rm -fR ${tempDIR}
+  
   exit 0
 
 fi

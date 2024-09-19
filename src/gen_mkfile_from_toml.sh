@@ -28,6 +28,8 @@ function gen_mkfile_from_toml () {
    # from https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
    eval "declare -A tomlAA="${1#*=}
 
+   local chosen_env=${2}
+
    # display_associative_array "$(declare -p tomlAA)"
 
    # Checking that I have what I need:
@@ -103,17 +105,18 @@ function gen_mkfile_from_toml () {
 
    # If I survived the previous, I have a list of upper case packages that can be used and two arrays with the necessary command INC/LIB lines
    #
+   mkdir -p ${LIPaS_EXT}/${chosen_env}
    
-   rm -f ${LIPaS_EXT}/${the_wname}.libinc
+   rm -f ${LIPaS_EXT}/${chosen_env}/${the_wname}.libinc
 
    for key_val in ${!PKGS_INCSLIBS[@]}
    do
-       echo ${PKGS_INCSLIBS[${key_val}]} >> ${LIPaS_EXT}/${the_wname}.libinc
+       echo ${PKGS_INCSLIBS[${key_val}]} >> ${LIPaS_EXT}/${chosen_env}/${the_wname}.libinc
        INC_LINE="${INC_LINE} \$(${key_val})"
    done
    for key_val in ${!PKGS_LIBSLIBS[@]}
    do
-       echo ${PKGS_LIBSLIBS[${key_val}]} >> ${LIPaS_EXT}/${the_wname}.libinc
+       echo ${PKGS_LIBSLIBS[${key_val}]} >> ${LIPaS_EXT}/${chosen_env}/${the_wname}.libinc
        LIB_LINE="${LIB_LINE} \$(${key_val})"
    done
 
@@ -122,7 +125,7 @@ function gen_mkfile_from_toml () {
    # Need to process the Makefile.LIPaS and the make.macros.LIPaS files accordingly
    # For now (2024-09-14), hardwired similarly as in build_pkg.sh
    # Should be moved to a generic handling routine that convert those keys @***@ in something useable
-   
+    
 
    # First parse the file(s) to check for the keys that need feeding
    declare -A keys_to_PROCESS
@@ -169,7 +172,7 @@ function gen_mkfile_from_toml () {
 	randomfile_name="keyvalue-$(hexdump -n 8 -v -e '/1 "%02X"' /dev/urandom)"
 	rfname="${tempDIR}/${randomfile_name}"
         # Call the hardwiring function that does it all
-        get_env_value_for_key ${key_val} ${loct_srcs} "${INC_LINE:-None}" "${LIB_LINE:-None}" "${the_wname}" "${rfname}"
+        get_env_value_for_key ${key_val} ${loct_srcs} "${INC_LINE:-None}" "${LIB_LINE:-None}" "${the_wname}" "${rfname}" ${chosen_env}
         value_gotten=$(<${rfname})
         rm -f ${rfname}
 
@@ -184,12 +187,12 @@ function gen_mkfile_from_toml () {
 
    vrb "Finalized gen. of make files"
 
-   vrb "Copyback in ${LIPaS_EXT}/${the_wname}.*"
+   vrb "Copyback in ${LIPaS_EXT}/${chosen_env}/${the_wname}.*"
 
    for lipas_file in $(ls ${tempDIR}/*.LIPaS)
    do
        targtfile=$(basename ${lipas_file} .LIPaS)
-       cp -pf ${lipas_file} ${LIPaS_EXT}/${the_wname}.${targtfile}
+       cp -pf ${lipas_file} ${LIPaS_EXT}/${chosen_env}/${the_wname}.${targtfile}
    done
 
    unset tomlAA

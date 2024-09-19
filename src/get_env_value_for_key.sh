@@ -22,6 +22,7 @@ function get_env_value_for_key () {
   local liblibdep=${4}
   local SOFT_NAME=${5}
   local tem_file_name=${6}
+  local env_chosen=${7}
   
   local doneIt=0
   
@@ -40,7 +41,7 @@ function get_env_value_for_key () {
        ;;
        SPECIFIC_GEN_LIB)
          # This is the file that we are generating, so make that name
-	 value_dctfile="${LIPaS_EXT}/${SOFT_NAME}.libinc"
+	 value_dctfile="${LIPaS_EXT}/${env_chosen}/${SOFT_NAME}.libinc"
        ;;
        LIST_OF_LIBLIBS)
          # Creating the compile LIB chain
