@@ -171,19 +171,25 @@ function gen_mkfile_from_toml () {
         # Call the hardwiring function that does it all
         get_env_value_for_key ${key_val} ${loct_srcs} "${INC_LINE:-None}" "${LIB_LINE:-None}" "${the_wname}" "${rfname}"
         value_gotten=$(<${rfname})
-	echo "Randomfile content: ${value_gotten}"
         rm -f ${rfname}
 
         for lipas_file in $(ls ${tempDIR}/*.LIPaS)
         do
 
-           mkefile_lipas="${lipas_file}"
-           mkefile_realp=$(realpath ${mkefile_lipas})
-           mkefile_reald=$(dirname ${mkefile_realp})
-  
 	   sed -i "s%${key_val}%${value_gotten}%g" ${lipas_file}
 
         done
+   done
+
+
+   vrb "Finalized gen. of make files"
+
+   vrb "Copyback in ${LIPaS_EXT}/${the_wname}.*"
+
+   for lipas_file in $(ls ${tempDIR}/*.LIPaS)
+   do
+       targtfile=$(basename ${lipas_file} .LIPaS)
+       cp -pf ${lipas_file} ${LIPaS_EXT}/${the_wname}.${targtfile}
    done
 
    unset tomlAA

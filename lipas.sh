@@ -541,13 +541,14 @@ then
 
     source ${MAIN_dir}/${MODULES_D}/gen_mkfile_from_toml.sh
     gen_mkfile_from_toml "$(declare -p TOML_TABLE_PKG)"
-
+    SOFTWNAME="${TOML_TABLE_PKG["pkginfo.name"]//\"}"
   else
     # Not provided with a file, exiting
     die "Option -g needs an existing TOML file"
 
   fi
 
+  msg " +  Generation Makefile ${SOFTWNAME} ...   + ${GREEN} [Done] ${NOFORMAT}"
   exit 0
 
 fi
