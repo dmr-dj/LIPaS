@@ -20,6 +20,8 @@ function get_env_value_for_key () {
   local targtsrcs=${2}
   local inclibdep=${3}
   local liblibdep=${4}
+  local SOFT_NAME=${5}
+  local tem_file_name=${6}
   
   local doneIt=0
   
@@ -39,34 +41,39 @@ function get_env_value_for_key () {
        SPECIFIC_GEN_LIB)
          # This is the file that we are generating, so make that name
 	 vrb "Output gen_lib is: "
-	 echo "${LIPaS_EXT}/${PKG_NAME}.libinc"
-         value_dctfile="${CC}"
+	 value_dctfile="${LIPaS_EXT}/${SOFT_NAME}.libinc"
        ;;
        LIST_OF_LIBLIBS)
          # Creating the compile LIB chain
 	 vrb "Creating LIB chain"
+	 value_dctfile="${liblibdep}"
        ;;
        LIST_OF_INCLIBS)
          # Creating the compile INC chain
 	 vrb "Creating INC chain"
+	 value_dctfile="${inclibdep}"
        ;;
        MAKEDEPF90_PATH)
          # Setting the default Makedepf90 path for all FORTRAN
 	 vrb "Default path for makedepf90: "
-	 vrb "${LIPaS_BIN}/makedepf90"
+	 value_dctfile="${LIPaS_BIN}/makedepf90"
        ;;
        PKG_NAME)
          # The One and Only package name
-	 vrb "PKG_NAME == ${PKG_NAME^^}"
+	 vrb "PKG_NAME == ${SOFT_NAME^^}"
+	 value_dctfile="${SOFT_NAME}"
        ;;
        SOURCE_DIR_PATH)
          # Path to the sources that will be compiled, relative to Makefile
 	 vrb "Sources are in: ${targtsrcs}"
+	 value_dctfile="${targtsrcs}"
        ;;
        *)
          die "Unkown key from env ${keysearch}"
        ;;
   esac
+
+  echo "${value_dctfile}" > ${tem_file_name}
   return
 }
 

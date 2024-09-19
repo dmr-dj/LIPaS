@@ -91,6 +91,8 @@ function gen_mkfile_from_toml () {
           PKGS_LIBSLIBS["${key_val}"]="${libline_lok}"
           IFS=${olderIFS}
 
+          INC_LINE=""
+          LIB_LINE=""
         else # no!
           # Cannot satisfy dependence, die
           die "Requested ${PKG_NAME} dependence does not seem to be installed, rerun LIPaS with -p ${PKG_NAME}"
@@ -107,10 +109,12 @@ function gen_mkfile_from_toml () {
    for key_val in ${!PKGS_INCSLIBS[@]}
    do
        echo ${PKGS_INCSLIBS[${key_val}]} >> ${LIPaS_EXT}/${the_wname}.libinc
+       INC_LINE="${INC_LINE} \$(${key_val})"
    done
    for key_val in ${!PKGS_LIBSLIBS[@]}
    do
        echo ${PKGS_LIBSLIBS[${key_val}]} >> ${LIPaS_EXT}/${the_wname}.libinc
+       LIB_LINE="${LIB_LINE} \$(${key_val})"
    done
 
    hereiam=$(pwd)
@@ -149,6 +153,8 @@ function gen_mkfile_from_toml () {
 
       cd ${hereiam}
 
+      cp ${mkefile_realp} ${tempDIR}/.
+
    done # On list makefiles to process
 
    # From there, keys_to_PROCESS is a unique list of keys that need to be fed with content
@@ -161,9 +167,23 @@ function gen_mkfile_from_toml () {
    do
 	# Create a temporary work file
 	randomfile_name="keyvalue-$(hexdump -n 8 -v -e '/1 "%02X"' /dev/urandom)"
-	touch ${tempDIR}/${randomfile_name}
+	rfname="${tempDIR}/${randomfile_name}"
         # Call the hardwiring function that does it all
-        get_env_value_for_key ${key_val} ${loct_srcs} "${INC_LINE:-None}" "${LIB_LINE:-None}"
+        get_env_value_for_key ${key_val} ${loct_srcs} "${INC_LINE:-None}" "${LIB_LINE:-None}" "${the_wname}" "${rfname}"
+        value_gotten=$(<${rfname})
+	echo "Randomfile content: ${value_gotten}"
+        rm -f ${rfname}
+
+        for lipas_file in $(ls ${tempDIR}/*.LIPaS)
+        do
+
+           mkefile_lipas="${lipas_file}"
+           mkefile_realp=$(realpath ${mkefile_lipas})
+           mkefile_reald=$(dirname ${mkefile_realp})
+  
+	   sed -i "s%${key_val}%${value_gotten}%g" ${lipas_file}
+
+        done
    done
 
    unset tomlAA
