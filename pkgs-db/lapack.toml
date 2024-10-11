@@ -21,7 +21,7 @@ lang="FF"
 method="make"
 mkfile="ad-hoc"
 modifier="internal|make.inc"
-target="all"
+target="lapack_install lib blas_testing"
 location="lapack-3.12.0"
 
 [installtst]

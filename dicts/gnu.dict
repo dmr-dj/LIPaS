@@ -27,4 +27,10 @@
 @F_PRE_PROCESS@			=	-cpp
 @F_IMPLIC_NONE@			=	-fimplicit-none
 @F_RECURSIVE@			=	-frecursive
+@FP_MODEL_STRCT@		=	 
+@PROTECT_PARENS@		=	 
+
+
+# make.inc specific specifics
+@FUNC_ETIME@			=	INT_ETIME
 

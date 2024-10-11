@@ -20,7 +20,7 @@ function get_valuekey () {
 
   if [[ ${1} =~ (.*)=(.*) ]]
   then
-    my_value=$( trim ${BASH_REMATCH[2]} )
+    my_value=$( trim "${BASH_REMATCH[2]}" )
     echo ${my_value}
     return 0
   else
@@ -34,7 +34,7 @@ function get_keyvalue () {
 
   if [[ ${1} =~ (.*)=(.*) ]]
   then
-    my_value=$( trim ${BASH_REMATCH[1]} )
+    my_value=$( trim "${BASH_REMATCH[1]}" )
     echo ${my_value}
     return 0
   else

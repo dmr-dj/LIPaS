@@ -14,13 +14,23 @@
 
 # GNU Dictionary keys for LIPaS
 
-@FORTRAN_COMPILER_PATH@		=	FROM_ENV
+@FORTRAN_COMPILER_PATH@	=	FROM_ENV
 @INSTALL_PREFIX@		=	FROM_ENV
+@C_COMPILER_PATH@	=	FROM_ENV
 
 
 # Compiler specific switches
 
-@F_OPTIM_HIGH@			=	-O2
+@F_OPTIM_HIGH@			=	-O3
+@F_OPTIM_MED@			=	-O2
+@F_OPTIM_NULL@			=	-O0
 @F_PRE_PROCESS@			=	-cpp
 @F_IMPLIC_NONE@			=	-u
+@F_RECURSIVE@			=	-recursive
+@FP_MODEL_STRCT@		=	-fp-model strict
+@PROTECT_PARENS@		=	-assume protect-parens
+
+
+# make.inc specific specifics
+@FUNC_ETIME@			=	INT_CPU_TIME
 

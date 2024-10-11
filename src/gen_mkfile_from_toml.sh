@@ -83,14 +83,12 @@ function gen_mkfile_from_toml () {
           IFS="!"
 	  
 	  key_val="INC${PKG_NAME^^}"
-	  PKGS_INCSLIBS+=("${key_val}") # Keeping the package uppercase since this is its profile for INC
 	  libline_lok=$(grep "${key_val}" ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/gen.libs)
-          PKGS_INCSLIBS["${key_val}"]="${libline_lok}"
+          PKGS_INCSLIBS+=(["${key_val}"]="${libline_lok}")
 
 	  key_val="LIB${PKG_NAME^^}"
-	  PKGS_LIBSLIBS+=("${key_val}") # Keeping the package uppercase since this is its profile for LIB
 	  libline_lok=$(grep "${key_val}" ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/gen.libs)
-          PKGS_LIBSLIBS["${key_val}"]="${libline_lok}"
+          PKGS_LIBSLIBS+=(["${key_val}"]="${libline_lok}")
           IFS=${olderIFS}
 
           INC_LINE=""

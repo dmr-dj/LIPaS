@@ -156,8 +156,8 @@ function build_pkg_ff () {
               key_mkefile=$( get_keyvalue "${mkefile_array[j]}" )   # List of keys that are in the Makefile
               value_mkefile=$( get_valuekey "${mkefile_array[j]}" ) # List of values that are in the Makefile
 
-              #~ echo "key_mkefile = ${key_mkefile}"
-              #~ echo "value_mkefile = ${value_mkefile}"
+              # echo "key_mkefile = ${key_mkefile}"
+              # echo "value_mkefile = ${value_mkefile}"
 
               found_valueMkefile=0
               # Lookup whether this value ( e.g. @FORTRAN_COMPILER_PATH@ )
@@ -166,6 +166,7 @@ function build_pkg_ff () {
               for (( k = 0 ; k < ${#dctfile_array[@]} ; k++ ))
               do
                 key_dctfile=$( get_keyvalue "${dctfile_array[k]}" )
+                # echo "Checking for pair key|value ${value_mkefile} ${key_dctfile}"
 
                 if [ ${key_dctfile} == ${value_mkefile} ] # Found a match in the dictionnary file, get the dictionnary value
                 then
@@ -225,7 +226,7 @@ function build_pkg_ff () {
         esac
 
         vrb "Building ${PKG_NAME}"
-        declare -a mke_taargets_list=("clean" "${tomlAA["target"]//\"/}" "install")
+        declare -a mke_taargets_list=("clean" ${tomlAA["target"]//\"/} "install")
 
         if [ -z ${internal_file+x} ] # no internal file, this is a Makefile STD
         then

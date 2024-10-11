@@ -25,7 +25,7 @@ function unpack () {
     mimeType=$(file -b --mime-type ${fileNM} | grep "x-tar\|gzip\|bzip2\|xz" | cut --delimiter=/ -f 2)
 
     case ${mimeType} in
-      gzip)
+      gzip|x-gzip)
         gunzip -q ${fileNM}
         fileNM=$( basename ${fileNM} .gz ) # so that if there is a tar file, then it will be processed
       ;;
