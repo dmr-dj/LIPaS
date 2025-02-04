@@ -35,9 +35,11 @@ function gen_liblines () {
      libline="${libline} -Wl,-rpath=${lib_pkgname_path} -L${lib_pkgname_path} -l${nolib_libname%%.*}"
    done 
    # Construct the lines in the form:
-      
-   echo "LIB${namelok_pkg^^} = ${libline}" >> ${file_name_append}
-   echo "INC${namelok_pkg^^} = -I${LIPaS_INC}" >> ${file_name_append}
+   # Environnement variables should not contain "-" characters, removing them
+   namevoorenv=$(echo "${namelok_pkg^^}" | tr -d -)
+
+   echo "LIB${namevoorenv} = ${libline}" >> ${file_name_append}
+   echo "INC${namevoorenv} = -I${LIPaS_INC}" >> ${file_name_append}
     
    status_return=0    
 }

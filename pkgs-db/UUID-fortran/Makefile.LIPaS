@@ -1,0 +1,59 @@
+SRCS = uuid_module.f90
+
+OBJS = $(SRCS:.f90=.o)
+
+all : $(OBJS)
+
+
+objdir           = .
+fc_compiler_path = @FORTRAN_COMPILER_PATH@
+
+# Generics, using the so constructed compiler.options
+
+FC                  = ${fc_compiler_path}
+FMAKEDEPEND         =
+
+FFLAGS  = @F_OPTIM_MED@
+FFLAGS += @F_IMPLIC_NONE@
+
+INCLUDES            =
+LIBS                =
+
+objdir = .
+libname = libuuid-fortran.a
+
+prefix = @INSTALL_PREFIX@
+
+libdir = ${prefix}/lib
+incdir = ${prefix}/inc
+
+# Compiler steps for all objects
+$(OBJS) : %.o : %.f90
+	$(FC) $(FFLAGS) -c $<
+
+#~ # Linker
+#~ $(EXES) : % : %.o
+#~ 	$(FC) $(FFLAGS) -o $@ $^
+
+# target 'clean' for deleting object- *.mod- and other
+# unwanted files
+
+clean:
+	rm -rf $(OBJS)  *.mod $(libname)
+
+strict: clean depend all
+
+.PHONY: strict
+
+# Dependencies
+$(OBJS) : $(SRCS)
+
+library:
+		ar -cvr $(libname) $(OBJS) $(objdir)/*.mod
+
+install: $(objdir)/$(libname)
+	@cp $^ $(libdir)
+	@cp $(objdir)/uuid_module.mod $(incdir)
+
+
+# The End of All Things (op. cit.)
