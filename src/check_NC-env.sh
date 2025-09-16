@@ -61,8 +61,15 @@ function check_NC-env(){
    LIBNETCDFC="-Wl,-rpath=${NC_C_LIB} -L${NC_C_LIB} -lnetcdf"
    INCNETCDFC="-I${NC_C_INC}"
 
-   LIBNETCDF="${LIBNETCDFC} ${LIBNETCDFF}"
-   INCNETCDF="${INCNETCDFF} ${INCNETCDFF}"
+   LIBNETCDF="${LIBNETCDFF} ${LIBNETCDFC}"
+   if [[ "${INCNETCDFF//[$' \t\n\r']/}" == "${INCNETCDFC//[$' \t\n\r']/}" ]]
+   then
+     # If they have the same include line, no need to put it twice
+     INCNETCDF="${INCNETCDFF}"
+   else
+     INCNETCDF="${INCNETCDFF} ${INCNETCDFC}"
+   fi
+
 
 } # check_NC-env
 # The End of All Things (op. cit.)

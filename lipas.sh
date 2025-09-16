@@ -18,7 +18,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 prog_name="LIPaS"
-script_version="0.5.8"
+script_version="0.5.9"
 
 MAIN_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
@@ -473,6 +473,10 @@ msg "  ===  Analysing Environnements  ====== "
 
      echo "INCNETCDF = ${INCNETCDF}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}
      echo "LIBNETCDF = ${LIBNETCDF}" >> ${MAIN_dir}/${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/${GEN_LIBS_FILE}
+     if [ ! -f ${MAIN_dir}/${PKG_DATABASE}/netcdf.ok ]
+     then
+        echo "INTERNAL SETUP" > ${MAIN_dir}/${PKG_DATABASE}/netcdf.ok
+     fi
 
    fi
 
