@@ -1,7 +1,7 @@
 # Temporary LIPaS conf file
 CC=/usr/local/install/intel-fcomp-2020/compilers_and_libraries/linux/bin/intel64/icc
 FC=/usr/local/install/intel-fcomp-2020/compilers_and_libraries/linux/bin/intel64/ifort
-NC_C_INC=/usr/local/install/netcdf-4.3.2/include
-NC_F_INC=/usr/local/install/netcdf-4.3.2/include
-NC_F_LIB=/usr/local/install/netcdf-4.3.2/lib
-NC_C_LIB=/usr/local/install/netcdf-4.3.2/lib
+NC_C_INC=/usr/local/install/netcdf-4.7.1/include
+NC_F_INC=/usr/local/install/netcdf-4.7.1/include
+NC_F_LIB=/usr/local/install/netcdf-4.7.1/lib
+NC_C_LIB=/usr/local/install/netcdf-4.7.1/lib
