@@ -1,0 +1,29 @@
+# 2024-03-29 / LIPaS / (c) dmr-dj
+
+title="semver-tool / LIPaS configuration file"
+
+[pkginfo]
+name="semver-tool"
+owner="fsaintjacques"
+license="Apache-2"
+date=""
+type="external"
+
+[retrieve]
+method="git"
+path="https://github.com/fsaintjacques/semver-tool.git"
+
+[dependencies]
+pkgs=""
+
+[build]
+lang="VOID"
+method="make"
+mkfile=""
+target=""
+location=""
+
+[installtst]
+exec="semver"
+
+# The End of All Things (op. cit.)

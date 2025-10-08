@@ -291,6 +291,30 @@ function build_pkg_ff () {
 
 }
 
+function build_pkg_void () {
+
+  local method=${1//\"/}
+
+  case ${method} in
+    make)
+     vrb "Attmpt. ${method} on ${PKG_NAME}"
+     # Go to package location
+     hereiam=$(pwd)
+     cd ${MAIN_dir}/${tempDIR}/${name_pkg}
+     if [ -f Makefile ]
+     then
+       make 2>&1 > /dev/null
+     fi
+     PREFIX=${LIPaS_ROOT} make install 2>&1 > /dev/null
+     success_or_not=$?
+     cd ${hereiam}
+     return ${success_or_not}
+    ;;
+  *)
+  die "Unknown build meth. ${method} for lang=VOID"
+  ;;
+  esac
+}
 
 function build_pkg () { # (TOML_AA_array, PKG_NAME)
 
@@ -316,6 +340,9 @@ function build_pkg () { # (TOML_AA_array, PKG_NAME)
      ;;
      FF)
         build_pkg_ff "$(declare -p tomlAA)" ${tomlAA["method"]}
+     ;;
+     VOID)
+        build_pkg_void ${tomlAA["method"]}
      ;;
      *)
      die "Unhandled programming language"
