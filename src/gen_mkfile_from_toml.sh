@@ -81,12 +81,15 @@ function gen_mkfile_from_toml () {
    #
           olderIFS=${IFS}
           IFS="!"
-	  
-	  key_val="INC${PKG_NAME^^}"
+
+	  # The environnemental name is the uppercase name without "-"
+	  namevoorenv=$(echo "${PKG_NAME^^}" | tr -d -)
+
+	  key_val="INC${namevoorenv}"
 	  libline_lok=$(grep "${key_val}" ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/gen.libs)
           PKGS_INCSLIBS+=(["${key_val}"]="${libline_lok}")
 
-	  key_val="LIB${PKG_NAME^^}"
+	  key_val="LIB${namevoorenv}"
 	  libline_lok=$(grep "${key_val}" ${ENV_DIR}/${env_to_build[${CHOSEN_CONF}]}/gen.libs)
           PKGS_LIBSLIBS+=(["${key_val}"]="${libline_lok}")
           IFS=${olderIFS}
@@ -101,6 +104,7 @@ function gen_mkfile_from_toml () {
       IFS=${oldIFS}
    fi
 
+   vrb "Finalized dependencies scanning for ${the_wname}"
    # If I survived the previous, I have a list of upper case packages that can be used and two arrays with the necessary command INC/LIB lines
    #
    mkdir -p ${LIPaS_EXT}/${chosen_env}
